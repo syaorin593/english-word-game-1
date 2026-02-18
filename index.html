@@ -3,38 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Quest: Grade 1 Complete</title>
+<title>Word Quest: Grade 1 Final Complete</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
-    :root { --bg: #1a1a20; --panel: rgba(30,30,40,0.95); --acc: #ffd700; --hp: #00ffaa; --dmg: #ff4444; --font: 'DotGothic16', sans-serif; }
+    :root { --bg: #1a1a15; --panel: rgba(40,30,20,0.95); --acc: #ffaa00; --hp: #00ffaa; --dmg: #ff4444; --font: 'DotGothic16', sans-serif; }
     * { box-sizing: border-box; user-select: none; }
     body { margin: 0; background: var(--bg); color: #fff; font-family: var(--font); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-    #app { width: 100%; max-width: 900px; height: 100%; max-height: 700px; position: relative; background: #111; border: 2px solid #555; border-radius: 12px; overflow: hidden; box-shadow: 0 0 50px #000; }
+    #app { width: 100%; max-width: 900px; height: 100%; max-height: 700px; position: relative; background: #100a05; border: 2px solid #642; border-radius: 12px; overflow: hidden; box-shadow: 0 0 50px #000; }
     
-    #error-box { display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; color:#ff5555; padding:20px; white-space:pre-wrap; font-family:monospace; text-align:left; overflow:auto; font-size: 14px; line-height: 1.5; }
-
-    .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; background: #15151a; z-index: 10; }
+    .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; background: #181008; z-index: 10; }
     .screen.active { display: flex; }
     .center { align-items: center; justify-content: center; text-align: center; }
     .hidden { display: none !important; }
 
     h1 { color: var(--acc); margin: 10px; text-shadow: 2px 2px 0 #000; font-size: 40px; cursor: pointer; }
     h1:active { transform: scale(0.95); }
-    .btn { background: #334; border: 2px solid #667; color: #fff; padding: 10px 20px; font-family: inherit; font-size: 16px; cursor: pointer; border-radius: 4px; margin: 5px; transition: 0.1s; }
-    .btn:hover { border-color: var(--acc); background: #445; }
-    .start-btn { width: 220px; padding: 20px; font-size: 20px; background: #2a4; margin-top: 30px; }
+    .btn { background: #432; border: 2px solid #642; color: #fff; padding: 10px 20px; font-family: inherit; font-size: 16px; cursor: pointer; border-radius: 4px; margin: 5px; transition: 0.1s; }
+    .btn:hover { border-color: var(--acc); background: #543; }
+    .start-btn { width: 220px; padding: 20px; font-size: 20px; background: #e60; border-color:#f80; margin-top: 30px; }
     
-    .top-bar, .bottom-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #222; border-bottom: 1px solid #444; }
-    .bottom-bar { justify-content: center; border-top: 1px solid #444; border-bottom: none; }
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; width: 100%; overflow-y: auto; padding: 15px; flex: 1; }
-    .card { background: #2a2a35; border: 1px solid #555; padding: 10px; border-radius: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; font-weight: bold; color: var(--acc); }
-    .card:hover { border-color: var(--acc); background: #353545; transform: scale(1.05); }
+    .top-bar, .bottom-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #221810; border-bottom: 1px solid #432; }
+    .bottom-bar { justify-content: center; border-top: 1px solid #432; border-bottom: none; }
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; width: 100%; overflow-y: auto; padding: 15px; flex: 1; }
+    .card { background: #2a2018; border: 1px solid #543; padding: 10px; border-radius: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; font-weight: bold; color: var(--acc); font-size: 12px; }
+    .card:hover { border-color: var(--acc); background: #35251a; transform: scale(1.05); }
     .item-desc { font-size: 10px; color: #aaa; margin-top: 5px; font-weight: normal; }
     
     #map-title { color: var(--acc); font-weight: bold; text-decoration: underline; cursor: pointer; font-size: 18px; }
     
-    #battle-hud { height: 80px; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444; }
-    .bar-frame { width: 140px; height: 15px; background: #222; border: 1px solid #555; margin: 5px 0; border-radius: 4px; overflow: hidden; }
+    #battle-hud { height: 80px; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #432; }
+    .bar-frame { width: 140px; height: 15px; background: #221; border: 1px solid #432; margin: 5px 0; border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; width: 100%; transition: width 0.3s; }
     .hp-color { background: var(--hp); } .enemy-color { background: var(--dmg); }
     #battle-field { flex: 1; display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 50px; }
@@ -42,28 +40,28 @@
     
     .panel { height: 260px; background: var(--panel); border-top: 4px solid #fff; padding: 15px; display: flex; flex-direction: column; }
     #cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 100%; }
-    .cmd-btn { background: #223; border: 2px solid #556; color: #fff; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .cmd-btn { background: #322; border: 2px solid #543; color: #fff; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cmd-btn:hover { border-color: var(--acc); }
     
-    #q-text { font-size: 20px; margin: 10px 0; color: #aaf; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 0 20px; }
+    #q-text { font-size: 20px; margin: 10px 0; color: #fa0; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 0 20px; }
     #choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 100%; }
     .choice-btn { text-align: left; padding: 5px 10px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
     #write-area { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-    #write-input { font-family: 'Press Start 2P', monospace; font-size: 24px; padding: 10px; width: 90%; text-align: center; background: #222; color: #fff; border: 2px solid var(--acc); border-radius: 8px; margin-bottom: 15px; }
+    #write-input { font-family: 'Press Start 2P', monospace; font-size: 24px; padding: 10px; width: 90%; text-align: center; background: #221; color: #fff; border: 2px solid var(--acc); border-radius: 8px; margin-bottom: 15px; }
 
     .overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    #defense-panel { background: rgba(100, 20, 20, 0.95); }
-    .timer-bar { width: 80%; height: 20px; background: #500; margin-bottom: 20px; border: 2px solid #fff; border-radius: 10px; overflow:hidden;}
-    #def-timer-fill { height: 100%; background: #f00; width: 100%; transition: width 0.1s linear; }
-    #def-word { font-family: 'Press Start 2P', monospace; font-size: 40px; text-shadow: 4px 4px 0 #000; margin-bottom: 5px; letter-spacing: 3px; }
-    #def-meaning { font-size: 24px; color: #aaf; margin-bottom: 20px; }
-    #fb-correct-ans { color: var(--acc); font-size: 30px; margin: 20px; font-weight: bold; font-family: 'Press Start 2P', monospace; }
+    #defense-panel { background: rgba(80, 40, 10, 0.95); }
+    .timer-bar { width: 80%; height: 20px; background: #310; margin-bottom: 20px; border: 2px solid #fff; border-radius: 10px; overflow:hidden;}
+    #def-timer-fill { height: 100%; background: #fa0; width: 100%; transition: width 0.1s linear; }
+    #def-word { font-family: 'Press Start 2P', monospace; font-size: 32px; text-shadow: 4px 4px 0 #000; margin-bottom: 5px; letter-spacing: 3px; word-break: break-all; text-align: center; padding: 0 20px; }
+    #def-meaning { font-size: 24px; color: #fa0; margin-bottom: 20px; text-align: center; }
+    #fb-correct-ans { color: var(--acc); font-size: 24px; margin: 20px; font-weight: bold; font-family: 'Press Start 2P', monospace; text-align: center; }
 
-    #title-list { width: 90%; height: 70%; overflow-y: auto; background: #222; border: 2px solid #555; padding: 10px; display: grid; grid-template-columns: 1fr; gap: 5px; }
-    .title-row { padding: 10px; background: #333; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; }
-    .title-row:hover { background: #444; }
-    .title-row.locked { opacity: 0.5; background: #111; color: #888; }
-    .title-row.equipped { border: 2px solid var(--acc); background: #353545; }
+    #title-list { width: 90%; height: 70%; overflow-y: auto; background: #221; border: 2px solid #543; padding: 10px; display: grid; grid-template-columns: 1fr; gap: 5px; }
+    .title-row { padding: 10px; background: #322; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; }
+    .title-row:hover { background: #433; }
+    .title-row.locked { opacity: 0.5; background: #110; color: #888; }
+    .title-row.equipped { border: 2px solid var(--acc); background: #432; }
     .title-name { font-weight: bold; font-size: 14px; }
     .title-desc { font-size: 10px; color: #aaa; margin-left:10px; }
 
@@ -84,6 +82,34 @@
     .confetti { position: absolute; width: 10px; height: 10px; animation: fall linear forwards; }
     @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 </style>
+<script>
+// --- CORE DEFINITIONS ---
+const Game = {};
+const Battle = {};
+const UI = {};
+const Debug = {
+    cnt: 0,
+    trigger: function() {
+        this.cnt++;
+        if(this.cnt >= 15) {
+            this.cnt = 0;
+            if(!Player.unlockedTitles.includes(99)) {
+                Player.unlockedTitles.push(99);
+                document.getElementById('debug-btn').style.display='block';
+                alert("Debug Unlocked!");
+            }
+            UI.toggleDebug();
+        }
+    },
+    setLv: function() { Player.lv=parseInt(document.getElementById('debug-lv').value); Player.hp=100+(Player.lv-1)*10; Player.maxHp=Player.hp; Game.updateMap(); },
+    setGold: function() { Player.gold=parseInt(document.getElementById('debug-gold').value); Game.updateMap(); },
+    unlockAllTitles: function() { 
+        for(let i=0; i<TITLE_DB.length; i++) if(!Player.unlockedTitles.includes(TITLE_DB[i].id)) Player.unlockedTitles.push(TITLE_DB[i].id);
+        alert("Titles Unlocked"); 
+    },
+    fullRestore: function() { Player.hp=Player.maxHp; alert("Recovered!"); }
+};
+</script>
 </head>
 <body>
 
@@ -98,8 +124,9 @@
 <div id="app">
     <div id="screen-title" class="screen active center">
         <h1 onclick="Debug.trigger()">WORD QUEST<br><span style="font-size:0.6em;color:#fff;">GRADE 1</span></h1>
-        <p style="color:#aaa;">Complete Edition (v15)</p>
+        <p style="color:#aaa;">Textbook Complete (v21)</p>
         <button id="btn-start" class="btn start-btn">START</button>
+        <p style="font-size:12px; color:#555; margin-top:50px; opacity:0;">(Debug Hidden)</p>
     </div>
 
     <div id="screen-map" class="screen">
@@ -120,7 +147,7 @@
 
     <div id="screen-shop" class="screen">
         <h2>ITEM SHOP</h2>
-        <div style="text-align:center;margin-bottom:10px;">Gold: <span id="shop-gold" style="color:#ffd700">0</span></div>
+        <div style="text-align:center;margin-bottom:10px;">Gold: <span id="shop-gold" style="color:#ffaa00">0</span></div>
         <div id="shop-container" class="grid-container" style="justify-content:center;"></div>
         <div class="bottom-bar"><button id="btn-shop-back" class="btn">BACK</button></div>
     </div>
@@ -146,7 +173,7 @@
         </div>
         <div id="panel-question" class="panel hidden">
             <div style="display:flex;justify-content:space-between;">
-                <span style="color:#ffd700;">QUIZ</span>
+                <span style="color:#ffaa00;">QUIZ</span>
                 <button id="btn-cancel" class="btn small">CANCEL</button>
             </div>
             <div id="q-text"></div>
@@ -198,42 +225,7 @@
 </div>
 
 <script>
-// --- GLOBAL DATA ---
-const Game = {};
-const Battle = {};
-const UI = {};
-const Debug = {};
-
-const UNITS = ["0","1","2","3","4","5","6","7","8","9","10","WR","LR","Ex"];
-const SHOP_ITEMS = [
-    {id:'potion', name:'Potion', icon:'🍷', cost:50, desc:"Heal 50 HP"},
-    {id:'bomb', name:'Bomb', icon:'💣', cost:80, desc:"Next Quiz: 2 Choices"},
-    {id:'power', name:'Power', icon:'⚔️', cost:150, desc:"Atk UP (until miss)"},
-    {id:'iron_shield', name:'Shield', icon:'🛡️', cost:150, desc:"Auto Block (1 time)"},
-    {id:'wisdom', name:'Wisdom', icon:'📜', cost:200, desc:"Exp x2 (1 Battle)"},
-    {id:'wealth', name:'Wealth', icon:'💰', cost:200, desc:"Gold x2 (1 Battle)"},
-    {id:'crit_gem', name:'Crit Gem', icon:'💎', cost:300, desc:"Next Hit: Critical"},
-    {id:'vampire', name:'Fang', icon:'🦇', cost:350, desc:"Drain HP (1 hit)"},
-    {id:'hi_potion', name:'Hi-Potion', icon:'🍷+', cost:120, desc:"Heal 150 HP"},
-    {id:'elixir', name:'Elixir', icon:'🧪', cost:200, desc:"Full Heal"}
-];
-const DB = [
-{u:"0",e:"nice",j:"すてきな"},{u:"0",e:"meet",j:"会う"},{u:"0",e:"you",j:"あなた"},{u:"0",e:"good",j:"よい"},{u:"0",e:"morning",j:"朝"},{u:"0",e:"I",j:"私"},{u:"0",e:"am",j:"…です"},{u:"0",e:"call",j:"呼ぶ"},{u:"0",e:"me",j:"私を"},{u:"0",e:"please",j:"お願いします"},{u:"0",e:"oh",j:"あら"},{u:"0",e:"are",j:"…です"},{u:"0",e:"yes",j:"はい"},{u:"0",e:"no",j:"いいえ"},{u:"0",e:"not",j:"…でない"},{u:"0",e:"so",j:"それで"},{u:"0",e:"tennis",j:"テニス"},{u:"0",e:"fan",j:"ファン"},{u:"0",e:"sport",j:"スポーツ"},
-{u:"1",e:"hello",j:"こんにちは"},{u:"1",e:"everyone",j:"みんな"},{u:"1",e:"like",j:"好き"},{u:"1",e:"do",j:"［疑問文］"},{u:"1",e:"play",j:"遊ぶ"},{u:"1",e:"soccer",j:"サッカー"},{u:"1",e:"that",j:"あれ"},{u:"1",e:"is",j:"…です"},{u:"1",e:"pen",j:"ペン"},{u:"1",e:"apple",j:"リンゴ"},{u:"1",e:"have",j:"持っている"},{u:"1",e:"question",j:"質問"},{u:"1",e:"number",j:"数"},{u:"1",e:"read",j:"読む"},{u:"1",e:"math",j:"数学"},{u:"1",e:"answer",j:"答え"},{u:"1",e:"study",j:"勉強する"},{u:"1",e:"every",j:"毎…"},{u:"1",e:"day",j:"日"},{u:"1",e:"music",j:"音楽"},
-{u:"2",e:"teacher",j:"先生"},{u:"2",e:"Ms.",j:"…さん"},{u:"2",e:"Mr.",j:"…さん"},{u:"2",e:"club",j:"クラブ"},{u:"2",e:"she",j:"彼女"},{u:"2",e:"he",j:"彼"},{u:"2",e:"friend",j:"友達"},{u:"2",e:"picture",j:"写真"},{u:"2",e:"this",j:"これ"},{u:"2",e:"who",j:"だれ"},{u:"2",e:"know",j:"知っている"},{u:"2",e:"it",j:"それ"},{u:"2",e:"food",j:"食べ物"},{u:"2",e:"right",j:"正しい"},{u:"2",e:"often",j:"よく"},{u:"2",e:"very",j:"とても"},{u:"2",e:"much",j:"たくさん"},{u:"2",e:"sometimes",j:"ときどき"},{u:"2",e:"see",j:"見る"},{u:"2",e:"but",j:"しかし"},{u:"2",e:"usually",j:"たいてい"},{u:"2",e:"how",j:"どう"},
-{u:"3",e:"cook",j:"料理する"},{u:"3",e:"breakfast",j:"朝食"},{u:"3",e:"always",j:"いつも"},{u:"3",e:"toast",j:"トースト"},{u:"3",e:"fruit",j:"果物"},{u:"3",e:"yogurt",j:"ヨーグルト"},{u:"3",e:"milk",j:"牛乳"},{u:"3",e:"eat",j:"食べる"},{u:"3",e:"rice",j:"米"},{u:"3",e:"soup",j:"スープ"},{u:"3",e:"hungry",j:"空腹"},{u:"3",e:"what",j:"何"},{u:"3",e:"can",j:"できる"},{u:"3",e:"noodle",j:"麺"},{u:"3",e:"many",j:"たくさんの"},{u:"3",e:"word",j:"単語"},{u:"3",e:"we",j:"私たち"},{u:"3",e:"use",j:"使う"},
-{u:"4",e:"gym",j:"体育館"},{u:"4",e:"near",j:"近くに"},{u:"4",e:"house",j:"家"},{u:"4",e:"where",j:"どこ"},{u:"4",e:"live",j:"住む"},{u:"4",e:"station",j:"駅"},{u:"4",e:"park",j:"公園"},{u:"4",e:"come",j:"来る"},{u:"4",e:"cool",j:"かっこいい"},{u:"4",e:"nice",j:"優しい"},{u:"4",e:"child",j:"子供"},{u:"4",e:"these",j:"これら"},{u:"4",e:"they",j:"彼ら"},{u:"4",e:"my",j:"私の"},{u:"4",e:"parent",j:"親"},{u:"4",e:"welcome",j:"ようこそ"},{u:"4",e:"here",j:"ここ"},{u:"4",e:"busy",j:"忙しい"},{u:"4",e:"our",j:"私たちの"},{u:"4",e:"bag",j:"かばん"},{u:"4",e:"dad",j:"父"},{u:"4",e:"table",j:"テーブル"},{u:"4",e:"look",j:"見る"},{u:"4",e:"man",j:"男性"},{u:"4",e:"door",j:"ドア"},{u:"4",e:"grandpa",j:"祖父"},{u:"4",e:"girl",j:"女の子"},{u:"4",e:"woman",j:"女性"},{u:"4",e:"bench",j:"ベンチ"},{u:"4",e:"bookstore",j:"本屋"},{u:"4",e:"street",j:"通り"},{u:"4",e:"hospital",j:"病院"},{u:"4",e:"perfect",j:"完璧な"},{u:"4",e:"gift",j:"贈り物"},{u:"4",e:"birthday",j:"誕生日"},
-{u:"5",e:"shirt",j:"シャツ"},{u:"5",e:"design",j:"デザイン"},{u:"5",e:"animal",j:"動物"},{u:"5",e:"kind",j:"種類"},{u:"5",e:"buy",j:"買う"},{u:"5",e:"want",j:"ほしい"},{u:"5",e:"black",j:"黒"},{u:"5",e:"which",j:"どちら"},{u:"5",e:"or",j:"または"},{u:"5",e:"blue",j:"青"},{u:"5",e:"cute",j:"かわいい"},{u:"5",e:"how",j:"どれくらい"},{u:"5",e:"much",j:"いくら"},{u:"5",e:"dollar",j:"ドル"},{u:"5",e:"great",j:"すごい"},{u:"5",e:"take",j:"取る"},{u:"5",e:"really",j:"本当に"},{u:"5",e:"festival",j:"祭り"},{u:"5",e:"when",j:"いつ"},{u:"5",e:"Sunday",j:"日曜日"},{u:"5",e:"free",j:"暇な"},{u:"5",e:"then",j:"それなら"},{u:"5",e:"let's",j:"…しよう"},{u:"5",e:"go",j:"行く"},{u:"5",e:"together",j:"一緒に"},{u:"5",e:"calendar",j:"カレンダー"},{u:"5",e:"January",j:"1月"},{u:"5",e:"February",j:"2月"},{u:"5",e:"March",j:"3月"},{u:"5",e:"April",j:"4月"},{u:"5",e:"May",j:"5月"},{u:"5",e:"June",j:"6月"},{u:"5",e:"July",j:"7月"},{u:"5",e:"August",j:"8月"},{u:"5",e:"September",j:"9月"},{u:"5",e:"October",j:"10月"},{u:"5",e:"November",j:"11月"},{u:"5",e:"December",j:"12月"},{u:"5",e:"holiday",j:"休日"},{u:"5",e:"mid-",j:"中ごろの"},{u:"5",e:"summer",j:"夏"},{u:"5",e:"vacation",j:"休暇"},{u:"5",e:"party",j:"パーティー"},{u:"5",e:"start",j:"始まる"},{u:"5",e:"o'clock",j:"…時"},
-{u:"6",e:"whose",j:"だれの"},{u:"6",e:"shoe",j:"靴"},{u:"6",e:"hey",j:"やあ"},{u:"6",e:"ticket",j:"チケット"},{u:"6",e:"yours",j:"あなたのもの"},{u:"6",e:"mine",j:"私のもの"},{u:"6",e:"maybe",j:"たぶん"},{u:"6",e:"some",j:"いくつかの"},{u:"6",e:"name",j:"名前"},{u:"6",e:"write",j:"書く"},{u:"6",e:"family",j:"家族"},{u:"6",e:"line",j:"列"},{u:"6",e:"touch",j:"触る"},{u:"6",e:"now",j:"今"},{u:"6",e:"father",j:"父"},{u:"6",e:"student",j:"生徒"},{u:"6",e:"junior",j:"年下の"},{u:"6",e:"high",j:"高い"},{u:"6",e:"school",j:"学校"},{u:"6",e:"year",j:"年"},{u:"6",e:"old",j:"古い"},{u:"6",e:"teach",j:"教える"},{u:"6",e:"little",j:"小さい"},{u:"6",e:"sister",j:"姉妹"},{u:"6",e:"brother",j:"兄弟"},{u:"6",e:"mother",j:"母"},{u:"6",e:"writer",j:"作家"},{u:"6",e:"poem",j:"詩"},{u:"6",e:"long",j:"長い"},{u:"6",e:"life",j:"人生"},{u:"6",e:"nature",j:"自然"},{u:"6",e:"speak",j:"話す"},{u:"6",e:"famous",j:"有名な"},{u:"6",e:"story",j:"物語"},{u:"6",e:"English",j:"英語"},{u:"6",e:"language",j:"言語"},{u:"6",e:"people",j:"人々"},{u:"6",e:"around",j:"周りに"},{u:"6",e:"world",j:"世界"},
-{u:"7",e:"enjoy",j:"楽しむ"},{u:"7",e:"listen",j:"聞く"},{u:"7",e:"well",j:"上手に"},{u:"7",e:"cannot",j:"できない"},{u:"7",e:"fast",j:"速く"},{u:"7",e:"swim",j:"泳ぐ"},{u:"7",e:"act",j:"演じる"},{u:"7",e:"hard",j:"一生懸命"},{u:"7",e:"fan",j:"うちわ"},{u:"7",e:"Japanese",j:"日本の"},{u:"7",e:"traditional",j:"伝統的な"},{u:"7",e:"comic",j:"喜劇の"},{u:"7",e:"storytelling",j:"話芸"},{u:"7",e:"stage",j:"舞台"},{u:"7",e:"cushion",j:"座布団"},{u:"7",e:"prop",j:"小道具"},{u:"7",e:"role",j:"役"},{u:"7",e:"only",j:"だけ"},{u:"7",e:"towel",j:"タオル"},{u:"7",e:"different",j:"違った"},{u:"7",e:"minute",j:"分"},{u:"7",e:"limit",j:"制限"},
-{u:"8",e:"presentation",j:"発表"},{u:"8",e:"slide",j:"スライド"},{u:"8",e:"give",j:"与える"},{u:"8",e:"class",j:"授業"},{u:"8",e:"surprise",j:"驚かす"},{u:"8",e:"her",j:"彼女を"},{u:"8",e:"send",j:"送る"},{u:"8",e:"card",j:"カード"},{u:"8",e:"look",j:"見る"},{u:"8",e:"any",j:"いくつかの"},{u:"8",e:"flower",j:"花"},{u:"8",e:"mountain",j:"山"},{u:"8",e:"river",j:"川"},{u:"8",e:"lake",j:"湖"},{u:"8",e:"beautiful",j:"美しい"},{u:"8",e:"popular",j:"人気のある"},{u:"8",e:"place",j:"場所"},{u:"8",e:"visit",j:"訪れる"},{u:"8",e:"pencil",j:"鉛筆"},
-{u:"9",e:"yesterday",j:"昨日"},{u:"9",e:"went",j:"行った"},{u:"9",e:"park",j:"駐車する"},{u:"9",e:"ate",j:"食べた"},{u:"9",e:"candy",j:"キャンディ"},{u:"9",e:"end",j:"終わり"},{u:"9",e:"saw",j:"見た"},{u:"9",e:"lot",j:"たくさん"},{u:"9",e:"had",j:"持っていた"},{u:"9",e:"fun",j:"楽しみ"},{u:"9",e:"did",j:"した"},{u:"9",e:"stay",j:"滞在する"},{u:"9",e:"late",j:"遅く"},{u:"9",e:"night",j:"夜"},{u:"9",e:"watch",j:"見る"},{u:"9",e:"TV",j:"テレビ"},{u:"9",e:"homework",j:"宿題"},{u:"9",e:"come",j:"来る"},{u:"9",e:"new",j:"新しい"},{u:"9",e:"shrine",j:"神社"},{u:"9",e:"make",j:"作る"},{u:"9",e:"money",j:"お金"},{u:"9",e:"bag",j:"袋"},{u:"9",e:"luck",j:"運"},
-{u:"10",e:"pizza",j:"ピザ"},{u:"10",e:"video",j:"ビデオ"},{u:"10",e:"game",j:"ゲーム"},{u:"10",e:"scary",j:"怖い"},{u:"10",e:"city",j:"都市"},{u:"10",e:"hot",j:"暑い"},{u:"10",e:"swimming",j:"水泳"},{u:"10",e:"Christmas",j:"クリスマス"},{u:"10",e:"was",j:"…だった"},{u:"10",e:"were",j:"…だった"},{u:"10",e:"home",j:"家"},{u:"10",e:"check",j:"調べる"},{u:"10",e:"later",j:"あとで"},{u:"10",e:"email",j:"メール"},{u:"10",e:"wait",j:"待つ"},{u:"10",e:"drink",j:"飲む"},{u:"10",e:"water",j:"水"},{u:"10",e:"doing",j:"している"},{u:"10",e:"reading",j:"読んでいる"},{u:"10",e:"playing",j:"遊んでいる"},{u:"10",e:"sleeping",j:"寝ている"},{u:"10",e:"eating",j:"食べている"},{u:"10",e:"watching",j:"見ている"},{u:"10",e:"studying",j:"勉強している"},{u:"10",e:"cooking",j:"料理している"},{u:"10",e:"coming",j:"来ている"},{u:"10",e:"using",j:"使っている"},{u:"10",e:"running",j:"走っている"},
-{u:"WR",e:"zoo",j:"動物園"},{u:"WR",e:"piano",j:"ピアノ"},{u:"WR",e:"guitar",j:"ギター"},{u:"WR",e:"notebook",j:"ノート"},{u:"WR",e:"dictionary",j:"辞書"},{u:"WR",e:"clock",j:"時計"},{u:"WR",e:"map",j:"地図"},{u:"WR",e:"computer",j:"PC"},{u:"WR",e:"chair",j:"いす"},{u:"WR",e:"window",j:"窓"},{u:"WR",e:"salad",j:"サラダ"},{u:"WR",e:"sunny",j:"晴れ"},{u:"WR",e:"rainy",j:"雨"},{u:"WR",e:"one",j:"1"},{u:"WR",e:"two",j:"2"},{u:"WR",e:"three",j:"3"},{u:"WR",e:"ten",j:"10"},{u:"WR",e:"hundred",j:"100"},{u:"WR",e:"cat",j:"猫"},{u:"WR",e:"dog",j:"犬"},{u:"WR",e:"bird",j:"鳥"},{u:"WR",e:"Monday",j:"月曜日"},{u:"WR",e:"library",j:"図書館"},{u:"WR",e:"first",j:"1番目"},{u:"WR",e:"second",j:"2番目"},{u:"WR",e:"head",j:"頭"},{u:"WR",e:"hand",j:"手"},{u:"WR",e:"get up",j:"起きる"},{u:"WR",e:"nurse",j:"看護師"},{u:"WR",e:"kitchen",j:"台所"},{u:"WR",e:"science",j:"理科"},{u:"WR",e:"eraser",j:"消しゴム"},{u:"WR",e:"ruler",j:"定規"},{u:"WR",e:"backpack",j:"リュック"},{u:"WR",e:"marker",j:"マーカー"},{u:"WR",e:"blackboard",j:"黒板"},{u:"WR",e:"sofa",j:"ソファー"},{u:"WR",e:"bed",j:"ベッド"},{u:"WR",e:"table",j:"テーブル"},{u:"WR",e:"door",j:"ドア"},{u:"WR",e:"bath",j:"お風呂"},{u:"WR",e:"living room",j:"リビング"},{u:"WR",e:"bedroom",j:"寝室"},{u:"WR",e:"garden",j:"庭"},{u:"WR",e:"stairs",j:"階段"},{u:"WR",e:"wall",j:"壁"},{u:"WR",e:"ceiling",j:"天井"},{u:"WR",e:"floor",j:"床"},{u:"WR",e:"roof",j:"屋根"},{u:"WR",e:"flower",j:"花"},{u:"WR",e:"tree",j:"木"},{u:"WR",e:"grass",j:"草"},{u:"WR",e:"sun",j:"太陽"},{u:"WR",e:"moon",j:"月"},{u:"WR",e:"star",j:"星"},{u:"WR",e:"cloud",j:"雲"},{u:"WR",e:"wind",j:"風"},{u:"WR",e:"snow",j:"雪"},{u:"WR",e:"river",j:"川"},{u:"WR",e:"sea",j:"海"},{u:"WR",e:"mountain",j:"山"},{u:"WR",e:"lake",j:"湖"},{u:"WR",e:"forest",j:"森"},{u:"WR",e:"park",j:"公園"},{u:"WR",e:"station",j:"駅"},{u:"WR",e:"airport",j:"空港"},{u:"WR",e:"port",j:"港"},{u:"WR",e:"hospital",j:"病院"},{u:"WR",e:"bank",j:"銀行"},{u:"WR",e:"post office",j:"郵便局"},{u:"WR",e:"supermarket",j:"スーパー"},{u:"WR",e:"convenience store",j:"コンビニ"},{u:"WR",e:"restaurant",j:"レストラン"},{u:"WR",e:"museum",j:"博物館"},{u:"WR",e:"hotel",j:"ホテル"},{u:"WR",e:"police station",j:"警察署"},{u:"WR",e:"fire station",j:"消防署"},{u:"WR",e:"temple",j:"寺"},{u:"WR",e:"shrine",j:"神社"},{u:"WR",e:"castle",j:"城"},{u:"WR",e:"church",j:"教会"},{u:"WR",e:"gym",j:"体育館"},{u:"WR",e:"pool",j:"プール"},{u:"WR",e:"stadium",j:"競技場"},{u:"WR",e:"soccer",j:"サッカー"},{u:"WR",e:"baseball",j:"野球"},{u:"WR",e:"basketball",j:"バスケ"},{u:"WR",e:"volleyball",j:"バレー"},{u:"WR",e:"tennis",j:"テニス"},{u:"WR",e:"badminton",j:"バドミントン"},{u:"WR",e:"swimming",j:"水泳"},{u:"WR",e:"dance",j:"ダンス"},{u:"WR",e:"running",j:"ランニング"},{u:"WR",e:"skiing",j:"スキー"},{u:"WR",e:"skating",j:"スケート"},{u:"WR",e:"judo",j:"柔道"},{u:"WR",e:"kendo",j:"剣道"},{u:"WR",e:"music",j:"音楽"},{u:"WR",e:"art",j:"美術"},{u:"WR",e:"drama",j:"演劇"},{u:"WR",e:"red",j:"赤"},{u:"WR",e:"blue",j:"青"},{u:"WR",e:"green",j:"緑"},{u:"WR",e:"yellow",j:"黄色"},{u:"WR",e:"black",j:"黒"},{u:"WR",e:"white",j:"白"},{u:"WR",e:"orange",j:"オレンジ色"},{u:"WR",e:"purple",j:"紫"},{u:"WR",e:"pink",j:"ピンク"},{u:"WR",e:"brown",j:"茶色"},{u:"WR",e:"gray",j:"灰色"},{u:"WR",e:"gold",j:"金"},{u:"WR",e:"silver",j:"銀"},{u:"WR",e:"Sunday",j:"日曜日"},{u:"WR",e:"Tuesday",j:"火曜日"},{u:"WR",e:"Wednesday",j:"水曜日"},{u:"WR",e:"Thursday",j:"木曜日"},{u:"WR",e:"Friday",j:"金曜日"},{u:"WR",e:"Saturday",j:"土曜日"},{u:"WR",e:"January",j:"1月"},{u:"WR",e:"February",j:"2月"},{u:"WR",e:"March",j:"3月"},{u:"WR",e:"April",j:"4月"},{u:"WR",e:"May",j:"5月"},{u:"WR",e:"June",j:"6月"},{u:"WR",e:"July",j:"7月"},{u:"WR",e:"August",j:"8月"},{u:"WR",e:"September",j:"9月"},{u:"WR",e:"October",j:"10月"},{u:"WR",e:"November",j:"11月"},{u:"WR",e:"December",j:"12月"},{u:"WR",e:"spring",j:"春"},{u:"WR",e:"summer",j:"夏"},{u:"WR",e:"autumn",j:"秋"},{u:"WR",e:"winter",j:"冬"},{u:"WR",e:"morning",j:"朝"},{u:"WR",e:"afternoon",j:"午後"},{u:"WR",e:"evening",j:"夕方"},{u:"WR",e:"night",j:"夜"},{u:"WR",e:"today",j:"今日"},{u:"WR",e:"tomorrow",j:"明日"},{u:"WR",e:"yesterday",j:"昨日"},{u:"WR",e:"hair",j:"髪"},{u:"WR",e:"face",j:"顔"},{u:"WR",e:"eye",j:"目"},{u:"WR",e:"ear",j:"耳"},{u:"WR",e:"nose",j:"鼻"},{u:"WR",e:"mouth",j:"口"},{u:"WR",e:"tooth",j:"歯"},{u:"WR",e:"neck",j:"首"},{u:"WR",e:"shoulder",j:"肩"},{u:"WR",e:"arm",j:"腕"},{u:"WR",e:"finger",j:"指"},{u:"WR",e:"leg",j:"脚"},{u:"WR",e:"foot",j:"足"},{u:"WR",e:"body",j:"体"},{u:"WR",e:"heart",j:"心"},{u:"WR",e:"mother",j:"母"},{u:"WR",e:"father",j:"父"},{u:"WR",e:"sister",j:"姉妹"},{u:"WR",e:"brother",j:"兄弟"},{u:"WR",e:"grandmother",j:"祖母"},{u:"WR",e:"grandfather",j:"祖父"},{u:"WR",e:"aunt",j:"おば"},{u:"WR",e:"uncle",j:"おじ"},{u:"WR",e:"cousin",j:"いとこ"},{u:"WR",e:"friend",j:"友達"},{u:"WR",e:"teacher",j:"先生"},{u:"WR",e:"student",j:"生徒"},{u:"WR",e:"doctor",j:"医者"},{u:"WR",e:"police officer",j:"警察官"},{u:"WR",e:"firefighter",j:"消防士"},{u:"WR",e:"baker",j:"パン屋"},{u:"WR",e:"florist",j:"花屋"},{u:"WR",e:"driver",j:"運転手"},{u:"WR",e:"singer",j:"歌手"},{u:"WR",e:"artist",j:"芸術家"},{u:"WR",e:"writer",j:"作家"},{u:"WR",e:"player",j:"選手"},{u:"WR",e:"rabbit",j:"ウサギ"},{u:"WR",e:"mouse",j:"ネズミ"},{u:"WR",e:"cow",j:"牛"},{u:"WR",e:"horse",j:"馬"},{u:"WR",e:"sheep",j:"羊"},{u:"WR",e:"pig",j:"豚"},{u:"WR",e:"chicken",j:"鶏"},{u:"WR",e:"lion",j:"ライオン"},{u:"WR",e:"tiger",j:"トラ"},{u:"WR",e:"elephant",j:"ゾウ"},{u:"WR",e:"monkey",j:"サル"},{u:"WR",e:"bear",j:"クマ"},{u:"WR",e:"panda",j:"パンダ"},{u:"WR",e:"koala",j:"コアラ"},{u:"WR",e:"snake",j:"ヘビ"},{u:"WR",e:"fish",j:"魚"},{u:"WR",e:"insect",j:"昆虫"},{u:"WR",e:"bread",j:"パン"},{u:"WR",e:"rice",j:"ご飯"},{u:"WR",e:"noodle",j:"麺"},{u:"WR",e:"egg",j:"卵"},{u:"WR",e:"meat",j:"肉"},{u:"WR",e:"vegetable",j:"野菜"},{u:"WR",e:"fruit",j:"果物"},{u:"WR",e:"apple",j:"リンゴ"},{u:"WR",e:"banana",j:"バナナ"},{u:"WR",e:"orange",j:"オレンジ"},{u:"WR",e:"grape",j:"ブドウ"},{u:"WR",e:"strawberry",j:"イチゴ"},{u:"WR",e:"melon",j:"メロン"},{u:"WR",e:"tomato",j:"トマト"},{u:"WR",e:"potato",j:"ジャガイモ"},{u:"WR",e:"carrot",j:"ニンジン"},{u:"WR",e:"onion",j:"タマネギ"},{u:"WR",e:"corn",j:"トウモロコシ"},{u:"WR",e:"milk",j:"牛乳"},{u:"WR",e:"juice",j:"ジュース"},{u:"WR",e:"tea",j:"お茶"},{u:"WR",e:"coffee",j:"コーヒー"},{u:"WR",e:"cake",j:"ケーキ"},{u:"WR",e:"ice cream",j:"アイスクリーム"},{u:"WR",e:"chocolate",j:"チョコレート"},{u:"WR",e:"cookie",j:"クッキー"},{u:"WR",e:"sandwich",j:"サンドイッチ"},{u:"WR",e:"hamburger",j:"ハンバーガー"},{u:"WR",e:"pizza",j:"ピザ"},{u:"WR",e:"curry",j:"カレー"},{u:"WR",e:"steak",j:"ステーキ"},{u:"WR",e:"sushi",j:"寿司"},{u:"WR",e:"tempura",j:"天ぷら"},{u:"WR",e:"car",j:"車"},{u:"WR",e:"bus",j:"バス"},{u:"WR",e:"train",j:"電車"},{u:"WR",e:"bike",j:"自転車"},{u:"WR",e:"taxi",j:"タクシー"},{u:"WR",e:"plane",j:"飛行機"},{u:"WR",e:"ship",j:"船"},{u:"WR",e:"boat",j:"ボート"},{u:"WR",e:"four",j:"4"},{u:"WR",e:"five",j:"5"},{u:"WR",e:"six",j:"6"},{u:"WR",e:"seven",j:"7"},{u:"WR",e:"eight",j:"8"},{u:"WR",e:"nine",j:"9"},{u:"WR",e:"eleven",j:"11"},{u:"WR",e:"twelve",j:"12"},{u:"WR",e:"twenty",j:"20"},{u:"WR",e:"thirty",j:"30"},{u:"WR",e:"forty",j:"40"},{u:"WR",e:"fifty",j:"50"},{u:"WR",e:"sixty",j:"60"},{u:"WR",e:"seventy",j:"70"},{u:"WR",e:"eighty",j:"80"},{u:"WR",e:"ninety",j:"90"},{u:"WR",e:"thousand",j:"1000"},{u:"WR",e:"Japan",j:"日本"},{u:"WR",e:"America",j:"アメリカ"},{u:"WR",e:"Canada",j:"カナダ"},{u:"WR",e:"Australia",j:"オーストラリア"},{u:"WR",e:"China",j:"中国"},{u:"WR",e:"Korea",j:"韓国"},{u:"WR",e:"India",j:"インド"},{u:"WR",e:"UK",j:"イギリス"},{u:"WR",e:"France",j:"フランス"},{u:"WR",e:"Germany",j:"ドイツ"},{u:"WR",e:"Italy",j:"イタリア"},{u:"WR",e:"Spain",j:"スペイン"},{u:"WR",e:"Brazil",j:"ブラジル"},{u:"WR",e:"Russia",j:"ロシア"},{u:"WR",e:"Egypt",j:"エジプト"},
-{u:"LR",e:"history",j:"歴史"},{u:"LR",e:"museum",j:"博物館"},{u:"LR",e:"interesting",j:"おもしろい"},{u:"LR",e:"grandfather",j:"祖父"},{u:"LR",e:"art",j:"芸術"},{u:"LR",e:"excited",j:"興奮した"},{u:"LR",e:"say",j:"言う"},{u:"LR",e:"think",j:"思う"},{u:"LR",e:"find",j:"見つける"},{u:"LR",e:"clock",j:"時計"},{u:"LR",e:"London",j:"ロンドン"},{u:"LR",e:"ago",j:"前"},{u:"LR",e:"culture",j:"文化"},{u:"LR",e:"Europe",j:"ヨーロッパ"},{u:"LR",e:"word",j:"言葉"},{u:"LR",e:"mean",j:"意味する"},{u:"LR",e:"right",j:"右"},{u:"LR",e:"back",j:"戻る"},{u:"LR",e:"ghost",j:"幽霊"},{u:"LR",e:"scary",j:"怖い"},{u:"LR",e:"character",j:"キャラクター"},{u:"LR",e:"present",j:"プレゼント"},{u:"LR",e:"rich",j:"金持ち"},{u:"LR",e:"money",j:"金"},{u:"LR",e:"poor",j:"貧しい"},{u:"LR",e:"life",j:"生活"},{u:"LR",e:"work",j:"働く"},{u:"LR",e:"change",j:"変える"},{u:"LR",e:"future",j:"未来"},{u:"LR",e:"kind",j:"親切な"},
-{u:"Ex",e:"shrine",j:"神社"},{u:"Ex",e:"tree",j:"木"},{u:"Ex",e:"sea",j:"海"},{u:"Ex",e:"big",j:"大きい"},{u:"Ex",e:"mountain",j:"山"},{u:"Ex",e:"long",j:"長い"},{u:"Ex",e:"small",j:"小さい"},{u:"Ex",e:"box",j:"箱"},{u:"Ex",e:"dog",j:"犬"},{u:"Ex",e:"ball",j:"ボール"},{u:"Ex",e:"desk",j:"机"},{u:"Ex",e:"cat",j:"猫"},{u:"Ex",e:"bed",j:"ベッド"},{u:"Ex",e:"bird",j:"鳥"},{u:"Ex",e:"book",j:"本"},{u:"Ex",e:"old",j:"古い"},{u:"Ex",e:"chair",j:"いす"},{u:"Ex",e:"cup",j:"カップ"},{u:"Ex",e:"look",j:"見る"},{u:"Ex",e:"new",j:"新しい"}
-];
-
+// --- PLAYER ---
 let Player = {
     hp:100, maxHp:100, gold:0, lv:1, exp:0, nextExp:100,
     items: { potion:1, power:1, bomb:1 },
@@ -246,6 +238,21 @@ let Player = {
         return "Unknown";
     }
 };
+
+// --- DATA ---
+const UNITS = ["U1","SaL1","U2","SaL2","U3","SaL3","U4","SaL4","U5","U6","RLE2","LR1","LR2","LR3","U7","U8","U9","U10","RLE4","SA1","SA2","SA3","U11"];
+const SHOP_ITEMS = [
+    {id:'potion', name:'Potion', icon:'🍷', cost:50, desc:"Heal 50 HP"},
+    {id:'bomb', name:'Bomb', icon:'💣', cost:80, desc:"Next Quiz: 2 Choices"},
+    {id:'power', name:'Power', icon:'⚔️', cost:150, desc:"Atk UP (until miss)"},
+    {id:'iron_shield', name:'Shield', icon:'🛡️', cost:150, desc:"Auto Block (1 time)"},
+    {id:'wisdom', name:'Wisdom', icon:'📜', cost:200, desc:"Exp x2 (1 Battle)"},
+    {id:'wealth', name:'Wealth', icon:'💰', cost:200, desc:"Gold x2 (1 Battle)"},
+    {id:'crit_gem', name:'Crit Gem', icon:'💎', cost:300, desc:"Next Hit: Critical"},
+    {id:'vampire', name:'Fang', icon:'🦇', cost:350, desc:"Drain HP (1 hit)"},
+    {id:'hi_potion', name:'Hi-Potion', icon:'🍷+', cost:120, desc:"Heal 150 HP"},
+    {id:'elixir', name:'Elixir', icon:'🧪', cost:200, desc:"Full Heal"}
+];
 
 const TITLE_DB = [
     {id:0, name:"Beginner", desc:"Welcome", cond:true},
@@ -261,31 +268,29 @@ const TITLE_DB = [
     {id:13, name:"Iron Wall", desc:"Block 50 times", cond:function(h){return h.stats.blocks>=50}},
     {id:14, name:"Scholar", desc:"100 Correct", cond:function(h){return h.stats.correct>=100}},
     {id:20, name:"Untouchable", desc:"No Dmg Win", cond:function(h){return h.stats.noDamageCount>=1}},
-    {id:30, name:"Unit 0 Master", desc:"U0 No Dmg", cond:function(h){return h.stats.unitPerfect['0']}},
-    {id:31, name:"Unit 1 Master", desc:"U1 No Dmg", cond:function(h){return h.stats.unitPerfect['1']}},
-    {id:32, name:"Unit 2 Master", desc:"U2 No Dmg", cond:function(h){return h.stats.unitPerfect['2']}},
-    {id:33, name:"Unit 3 Master", desc:"U3 No Dmg", cond:function(h){return h.stats.unitPerfect['3']}},
-    {id:34, name:"Unit 4 Master", desc:"U4 No Dmg", cond:function(h){return h.stats.unitPerfect['4']}},
-    {id:35, name:"Unit 5 Master", desc:"U5 No Dmg", cond:function(h){return h.stats.unitPerfect['5']}},
-    {id:36, name:"Unit 6 Master", desc:"U6 No Dmg", cond:function(h){return h.stats.unitPerfect['6']}},
-    {id:37, name:"Unit 7 Master", desc:"U7 No Dmg", cond:function(h){return h.stats.unitPerfect['7']}},
-    {id:38, name:"Unit 8 Master", desc:"U8 No Dmg", cond:function(h){return h.stats.unitPerfect['8']}},
-    {id:39, name:"Unit 9 Master", desc:"U9 No Dmg", cond:function(h){return h.stats.unitPerfect['9']}},
-    {id:40, name:"Unit 10 Master", desc:"U10 No Dmg", cond:function(h){return h.stats.unitPerfect['10']}},
-    {id:41, name:"Word Master", desc:"WR No Dmg", cond:function(h){return h.stats.unitPerfect['WR']}},
+    {id:30, name:"Unit 1 Master", desc:"U1 No Dmg", cond:function(h){return h.stats.unitPerfect['U1']}},
+    {id:31, name:"Unit 2 Master", desc:"U2 No Dmg", cond:function(h){return h.stats.unitPerfect['U2']}},
+    {id:32, name:"Unit 3 Master", desc:"U3 No Dmg", cond:function(h){return h.stats.unitPerfect['U3']}},
+    {id:33, name:"Unit 4 Master", desc:"U4 No Dmg", cond:function(h){return h.stats.unitPerfect['U4']}},
+    {id:34, name:"Unit 5 Master", desc:"U5 No Dmg", cond:function(h){return h.stats.unitPerfect['U5']}},
+    {id:35, name:"Unit 6 Master", desc:"U6 No Dmg", cond:function(h){return h.stats.unitPerfect['U6']}},
+    {id:36, name:"Unit 7 Master", desc:"U7 No Dmg", cond:function(h){return h.stats.unitPerfect['U7']}},
+    {id:37, name:"Unit 8 Master", desc:"U8 No Dmg", cond:function(h){return h.stats.unitPerfect['U8']}},
+    {id:38, name:"Unit 9 Master", desc:"U9 No Dmg", cond:function(h){return h.stats.unitPerfect['U9']}},
+    {id:39, name:"Unit 10 Master", desc:"U10 No Dmg", cond:function(h){return h.stats.unitPerfect['U10']}},
+    {id:40, name:"Unit 11 Master", desc:"U11 No Dmg", cond:function(h){return h.stats.unitPerfect['U11']}},
     {id:99, name:"Cheater", desc:"Debug Mode", cond:function(h){return h.unlockedTitles.includes(99)}}
 ];
 
-// --- HELPER ---
+// --- METHODS ---
 function setText(id, text) {
     const el = document.getElementById(id);
-    if (el) el.innerText = text;
+    if(el) el.innerText = text;
 }
 function getUnitIndex(u) {
     return UNITS.indexOf(u);
 }
 
-// --- UI METHODS ---
 UI.show = function(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -327,14 +332,18 @@ UI.setText = function(id, text) {
     if(el) el.innerText = text;
 };
 
-// --- GAME METHODS ---
 Game.start = function() { UI.show('screen-map'); };
 Game.renderMap = function() {
     const g = document.getElementById('map-grid'); g.innerHTML = "";
     UNITS.forEach(u => {
         const d = document.createElement('div'); d.className = 'card';
-        let txt = u==="WR"?"Word Room":(u==="LR"?"Let's Read": (u==="Ex"?"Extra":"Unit "+u));
-        d.innerHTML = `<div style="color:var(--acc);font-weight:bold;">${txt}</div>`;
+        let txt = u;
+        if(u.startsWith('U')) txt = "Unit "+u.slice(1);
+        if(u.startsWith('LR')) txt = "Reading "+u.slice(2);
+        if(u.startsWith('SaL')) txt = "Let's Talk "+u.slice(3);
+        if(u.startsWith('SA')) txt = "Activity "+u.slice(2);
+        if(u.startsWith('RLE')) txt = "Reading "+u.slice(3);
+        d.innerHTML = `<div style="color:var(--acc);font-weight:bold;font-size:12px;">${txt}</div>`;
         d.onclick = () => Battle.init(u);
         g.appendChild(d);
     });
@@ -395,18 +404,28 @@ Game.buyItem = function(k, c) {
     } else alert("Not enough Gold");
 };
 
-// --- BATTLE METHODS ---
+// --- BATTLE ---
+Battle.state = "CMD"; Battle.words = []; Battle.cur = null; 
+Battle.enemy = {hp:600, max:600}; Battle.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false};
+Battle.defWord = ""; Battle.defIdx = 0; Battle.lock = false; Battle.defTimer = 0; Battle.defMax = 300; 
+Battle.type = "attack"; Battle.curAnswer = ""; Battle.defMeaning = ""; Battle.currentUnit = ""; Battle.takenDamage = false;
+Battle.lastWord = null;
+
 Battle.init = function(u) {
     this.words = DB.filter(d=>d.u===u);
     if(!this.words.length) return alert("No words!");
     this.currentUnit = u;
     this.takenDamage = false;
+    this.lastWord = null;
     
-    const uIdx = getUnitIndex(u);
-    const baseHP = 500 + (uIdx * 60); 
-    const baseAtk = 25 + (uIdx * 2);
+    const uIdx = UNITS.indexOf(u);
+    const baseHP = 300 + (uIdx * 30); 
+    const baseAtk = 15 + (uIdx * 1.5);
     
-    this.enemy = { hp: baseHP, max: baseHP, atk: baseAtk };
+    this.enemy.max = baseHP;
+    this.enemy.hp = this.enemy.max;
+    this.enemy.atk = baseAtk;
+    
     this.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false};
     Player.hp = Player.maxHp;
     
@@ -437,7 +456,18 @@ Battle.showCmd = function() {
 Battle.act = function(type) {
     this.type = type;
     if(this.words.length===0) return;
-    this.cur = this.words[Math.floor(Math.random()*this.words.length)];
+    
+    let nextWord;
+    if(this.words.length > 1) {
+        do {
+            nextWord = this.words[Math.floor(Math.random()*this.words.length)];
+        } while (nextWord === this.lastWord);
+    } else {
+        nextWord = this.words[0];
+    }
+    this.cur = nextWord;
+    this.lastWord = nextWord;
+
     this.state="QUIZ"; this.lock=false; UI.showPanel('panel-question');
     
     let reverse = (Math.random() > 0.5 && type === 'attack');
@@ -503,14 +533,13 @@ Battle.check = function(isCorrect) {
         document.getElementById('hero-sprite').classList.add('attack-anim');
         setTimeout(()=>document.getElementById('hero-sprite').classList.remove('attack-anim'),300);
         
-        let baseDmg = this.type==='magic' ? 100 : 60;
+        let baseDmg = this.type==='magic' ? 80 : 50;
         let lvMult = 1 + (Player.lv * 0.05);
         let dmg = Math.floor(baseDmg * lvMult);
 
         if(this.buffs.atk) dmg = Math.floor(dmg * 1.5);
         if(this.buffs.crit) { dmg = Math.floor(dmg * 2.0); this.buffs.crit=false; }
         
-        // Vampire Drain
         if(this.buffs.drain) {
             let heal = Math.floor(dmg * 0.5);
             Player.hp = Math.min(Player.maxHp, Player.hp + heal);
@@ -569,6 +598,7 @@ Battle.renderDef = function() {
 
 Battle.checkDef = function(key) {
     if(this.lock || document.getElementById('defense-panel').classList.contains('hidden')) return;
+    if(key.length !== 1) return;
     if(key.toLowerCase()===this.defWord[this.defIdx].toLowerCase()){
         this.defIdx++; this.renderDef();
         if(this.defIdx>=this.defWord.length) this.endDef(true);
@@ -576,6 +606,7 @@ Battle.checkDef = function(key) {
 };
 
 Battle.endDef = function(success) {
+    if(this.state !== "DEFENSE") return;
     this.state="BATTLE"; UI.hideOverlay('defense-panel');
     if(success) {
         let dmg=40; 
@@ -605,7 +636,7 @@ Battle.takeDamage = function(dmg) {
 };
 
 Battle.win = function() {
-    const uIdx = getUnitIndex(this.currentUnit);
+    const uIdx = UNITS.indexOf(this.currentUnit);
     let baseRew = 50 * (1 + uIdx * 0.15); 
     let finalRew = Math.floor(baseRew * (1 + Player.lv * 0.05));
 
@@ -640,15 +671,63 @@ Battle.win = function() {
     UI.confetti();
 };
 
-// --- DEBUG METHODS ---
-Debug.cnt=0;
-Debug.trigger = function(){ this.cnt++; if(this.cnt>=15){ this.cnt=0; Player.unlockedTitles.push(99); document.getElementById('debug-btn').style.display='block'; alert("Debug Unlocked!"); } };
-Debug.setLv = function(){ Player.lv=parseInt(document.getElementById('debug-lv').value); Player.hp=100+(Player.lv-1)*10; Player.maxHp=Player.hp; Game.updateMap(); };
-Debug.setGold = function(){ Player.gold=parseInt(document.getElementById('debug-gold').value); Game.updateMap(); };
-Debug.unlockAllTitles = function(){ Player.unlockedTitles=[0,1,2,3,4,5,6,10,11,12,13,14,20,30,31,32,33,34,35,36,37,38,39,40,41,99]; alert("Titles Unlocked"); };
-Debug.fullRestore = function(){ Player.hp=Player.maxHp; alert("Recovered!"); };
+// --- DATA ---
+const DB = [
+// U1-1
+{u:"U1",e:"call",j:"呼ぶ"},{u:"U1",e:"South Africa",j:"南アフリカ共和国"},{u:"U1",e:"love",j:"愛する"},{u:"U1",e:"everyone",j:"みんな"},{u:"U1",e:"me",j:"私を"},{u:"U1",e:"from",j:"…から"},{u:"U1",e:"Japanese",j:"日本語"},{u:"U1",e:"sweet",j:"甘い菓子"},{u:"U1",e:"and",j:"…と～"},{u:"U1",e:"too",j:"～もまた"},{u:"U1",e:"join",j:"参加する"},{u:"U1",e:"the",j:"その"},{u:"U1",e:"club",j:"クラブ"},{u:"U1",e:"Call me",j:"私を…と呼んで"},{u:"U1",e:"want to",j:"…したい"},{u:"U1",e:"number",j:"数"},{u:"U1",e:"one",j:"1"},{u:"U1",e:"two",j:"2"},{u:"U1",e:"three",j:"3"},{u:"U1",e:"four",j:"4"},{u:"U1",e:"five",j:"5"},{u:"U1",e:"six",j:"6"},{u:"U1",e:"seven",j:"7"},{u:"U1",e:"eight",j:"8"},{u:"U1",e:"nine",j:"9"},{u:"U1",e:"eleven",j:"11"},{u:"U1",e:"twelve",j:"12"},{u:"U1",e:"thirteen",j:"13"},{u:"U1",e:"fourteen",j:"14"},{u:"U1",e:"fifteen",j:"15"},{u:"U1",e:"sixteen",j:"16"},{u:"U1",e:"seventeen",j:"17"},{u:"U1",e:"eighteen",j:"18"},{u:"U1",e:"nineteen",j:"19"},{u:"U1",e:"twenty",j:"20"},{u:"U1",e:"thirty",j:"30"},{u:"U1",e:"forty",j:"40"},{u:"U1",e:"fifty",j:"50"},{u:"U1",e:"sixty",j:"60"},{u:"U1",e:"seventy",j:"70"},{u:"U1",e:"eighty",j:"80"},{u:"U1",e:"ninety",j:"90"},{u:"U1",e:"hundred",j:"100"},{u:"U1",e:"zero",j:"0"},{u:"U1",e:"fan",j:"ファン"},{u:"U1",e:"often",j:"しばしば"},{u:"U1",e:"with",j:"一緒に"},{u:"U1",e:"but",j:"しかし"},{u:"U1",e:"rugby",j:"ラグビー"},{u:"U1",e:"watch",j:"見る"},{u:"U1",e:"friend",j:"友達"},{u:"U1",e:"great",j:"すばらしい"},{u:"U1",e:"no",j:"いいえ"},{u:"U1",e:"not",j:"…でない"},{u:"U1",e:"oh",j:"まあ"},{u:"U1",e:"don't",j:"do not"},{u:"U1",e:"do",j:"する"},{u:"U1",e:"draw",j:"描く"},{u:"U1",e:"an",j:"1つの"},{u:"U1",e:"anime",j:"アニメ"},{u:"U1",e:"so",j:"だから"},{u:"U1",e:"about",j:"について"},{u:"U1",e:"lesson",j:"授業"},{u:"U1",e:"comic",j:"マンガ"},{u:"U1",e:"wow",j:"うわあ"},{u:"U1",e:"are",j:"…です"},{u:"U1",e:"in",j:"…に"},{u:"U1",e:"art",j:"美術"},{u:"U1",e:"how",j:"どんな"},{u:"U1",e:"school",j:"学校"},{u:"U1",e:"now",j:"今"},{u:"U1",e:"take",j:"とる"},{u:"U1",e:"swimming",j:"水泳"},{u:"U1",e:"How about you?",j:"あなたはどうですか"},
+// SaL1
+{u:"SaL1",e:"shop",j:"店"},{u:"SaL1",e:"cherry",j:"さくらんぼ"},{u:"SaL1",e:"think",j:"考える"},{u:"SaL1",e:"this",j:"これ"},{u:"SaL1",e:"white",j:"白い"},{u:"SaL1",e:"photo",j:"写真"},{u:"SaL1",e:"sing",j:"歌う"},{u:"SaL1",e:"black",j:"黒い"},{u:"SaL1",e:"cake",j:"ケーキ"},{u:"SaL1",e:"we",j:"私たちは"},{u:"SaL1",e:"rice",j:"米"},{u:"SaL1",e:"home",j:"家"},{u:"SaL1",e:"cute",j:"かわいい"},{u:"SaL1",e:"fish",j:"魚"},{u:"SaL1",e:"lunch",j:"昼食"},{u:"SaL1",e:"king",j:"王"},{u:"SaL1",e:"math",j:"数学"},{u:"SaL1",e:"English",j:"英語"},{u:"SaL1",e:"strong",j:"強い"},{u:"SaL1",e:"bath",j:"入浴"},{u:"SaL1",e:"clock",j:"時計"},{u:"SaL1",e:"lake",j:"湖"},{u:"SaL1",e:"bike",j:"自転車"},{u:"SaL1",e:"game",j:"ゲーム"},{u:"SaL1",e:"shrine",j:"神社"},{u:"SaL1",e:"nose",j:"鼻"},
+// Unit 2
+{u:"U2",e:"class",j:"学級"},{u:"U2",e:"our",j:"私たちの"},{u:"U2",e:"Canada",j:"カナダ"},{u:"U2",e:"America",j:"アメリカ"},{u:"U2",e:"Ms.",j:"…さん(女性)"},{u:"U2",e:"Mr.",j:"…さん(男性)"},{u:"U2",e:"he",j:"彼は"},{u:"U2",e:"she",j:"彼女は"},{u:"U2",e:"new",j:"新しい"},{u:"U2",e:"teacher",j:"先生"},{u:"U2",e:"on",j:"…に所属して"},{u:"U2",e:"team",j:"チーム"},{u:"U2",e:"at",j:"…において"},{u:"U2",e:"cool",j:"かっこいい"},{u:"U2",e:"be good at",j:"…が得意だ"},{u:"U2",e:"he's",j:"he is"},{u:"U2",e:"she's",j:"she is"},{u:"U2",e:"English",j:"英語"},{u:"U2",e:"good",j:"よい"},{u:"U2",e:"Chinese",j:"中国語"},{u:"U2",e:"cannot",j:"できない"},{u:"U2",e:"some",j:"いくつかの"},{u:"U2",e:"parent",j:"親"},{u:"U2",e:"China",j:"中国"},{u:"U2",e:"food",j:"食べ物"},{u:"U2",e:"father",j:"父"},{u:"U2",e:"can",j:"できる"},{u:"U2",e:"make",j:"作る"},{u:"U2",e:"very",j:"とても"},{u:"U2",e:"well",j:"上手に"},{u:"U2",e:"that",j:"あれ"},{u:"U2",e:"read",j:"読む"},{u:"U2",e:"really",j:"本当"},{u:"U2",e:"see",j:"わかる"},{u:"U2",e:"I see.",j:"なるほど"},{u:"U2",e:"that's",j:"that is"},{u:"U2",e:"can't",j:"cannot"},{u:"U2",e:"excuse",j:"許す"},{u:"U2",e:"oops",j:"おっと"},{u:"U2",e:"here",j:"ここ"},{u:"U2",e:"welcome",j:"歓迎される"},{u:"U2",e:"your",j:"あなたの"},{u:"U2",e:"thank",j:"感謝する"},{u:"U2",e:"it",j:"それ"},{u:"U2",e:"bird",j:"鳥"},{u:"U2",e:"Excuse me.",j:"すみません"},{u:"U2",e:"Here you are.",j:"はい、どうぞ"},{u:"U2",e:"Thank you.",j:"ありがとう"},{u:"U2",e:"You're welcome.",j:"どういたしまして"},{u:"U2",e:"you're",j:"you are"},{u:"U2",e:"it's",j:"it is"},{u:"U2",e:"that",j:"あれ"},{u:"U2",e:"are",j:"…です"},
+// SaL2
+{u:"SaL2",e:"e-mail",j:"Eメール"},{u:"SaL2",e:"May",j:"5月"},{u:"SaL2",e:"green",j:"緑"},{u:"SaL2",e:"tea",j:"茶"},{u:"SaL2",e:"blue",j:"青"},{u:"SaL2",e:"juice",j:"ジュース"},{u:"SaL2",e:"zoo",j:"動物園"},{u:"SaL2",e:"book",j:"本"},{u:"SaL2",e:"train",j:"電車"},{u:"SaL2",e:"rain",j:"雨"},{u:"SaL2",e:"glue",j:"接着剤"},{u:"SaL2",e:"fruit",j:"果物"},{u:"SaL2",e:"beef",j:"牛肉"},{u:"SaL2",e:"sea",j:"海"},{u:"SaL2",e:"season",j:"季節"},{u:"SaL2",e:"peach",j:"桃"},{u:"SaL2",e:"day",j:"日"},{u:"SaL2",e:"beach",j:"浜辺"},{u:"SaL2",e:"speak",j:"話す"},{u:"SaL2",e:"rainy",j:"雨の"},{u:"SaL2",e:"cheese",j:"チーズ"},{u:"SaL2",e:"room",j:"部屋"},{u:"SaL2",e:"classroom",j:"教室"},{u:"SaL2",e:"swimming pool",j:"プール"},{u:"SaL2",e:"cook",j:"料理する"},{u:"SaL2",e:"cooking",j:"料理"},{u:"SaL2",e:"textbook",j:"教科書"},{u:"SaL2",e:"notebook",j:"ノート"},{u:"SaL2",e:"today",j:"今日"},{u:"SaL2",e:"usually",j:"たいてい"},{u:"SaL2",e:"drink",j:"飲む"},{u:"SaL2",e:"green tea",j:"緑茶"},{u:"SaL2",e:"it",j:"それ"},
+// Unit 3
+{u:"U3",e:"symbol",j:"象徴"},{u:"U3",e:"for",j:"…のために"},{u:"U3",e:"interesting",j:"おもしろい"},{u:"U3",e:"favorite",j:"お気に入りの"},{u:"U3",e:"character",j:"登場人物"},{u:"U3",e:"also",j:"…もまた"},{u:"U3",e:"what",j:"何"},{u:"U3",e:"family",j:"家族"},{u:"U3",e:"who",j:"だれ"},{u:"U3",e:"why",j:"なぜ"},{u:"U3",e:"brave",j:"勇敢な"},{u:"U3",e:"kind",j:"親切な"},{u:"U3",e:"what's",j:"what is"},{u:"U3",e:"who's",j:"who is"},{u:"U3",e:"the",j:"その"},{u:"U3",e:"around",j:"…の近くに"},{u:"U3",e:"after",j:"…のあとに"},{u:"U3",e:"online",j:"オンラインで"},{u:"U3",e:"live",j:"住んでいる"},{u:"U3",e:"come",j:"来る"},{u:"U3",e:"by",j:"…によって"},{u:"U3",e:"walk",j:"歩く"},{u:"U3",e:"when",j:"いつ"},{u:"U3",e:"study",j:"勉強する"},{u:"U3",e:"after school",j:"放課後に"},{u:"U3",e:"week",j:"週"},{u:"U3",e:"Sunday",j:"日曜日"},{u:"U3",e:"Monday",j:"月曜日"},{u:"U3",e:"Tuesday",j:"火曜日"},{u:"U3",e:"Wednesday",j:"水曜日"},{u:"U3",e:"Thursday",j:"木曜日"},{u:"U3",e:"Friday",j:"金曜日"},{u:"U3",e:"Saturday",j:"土曜日"},{u:"U3",e:"here",j:"ここ"},{u:"U3",e:"how",j:"どのようにして"},{u:"U3",e:"to",j:"…へ"},{u:"U3",e:"on",j:"…に"},{u:"U3",e:"do",j:"する"},{u:"U3",e:"Japanese",j:"日本語"},{u:"U3",e:"halfway",j:"途中"},{u:"U3",e:"win",j:"勝つ"},{u:"U3",e:"next",j:"次の"},{u:"U3",e:"luck",j:"運"},{u:"U3",e:"near",j:"…の近くで"},{u:"U3",e:"where",j:"どこに"},{u:"U3",e:"practice",j:"練習する"},{u:"U3",e:"hard",j:"一生懸命に"},{u:"U3",e:"go",j:"行く"},{u:"U3",e:"park",j:"公園"},{u:"U3",e:"station",j:"駅"},{u:"U3",e:"under",j:"…の下に"},{u:"U3",e:"Good luck.",j:"がんばって"},{u:"U3",e:"when's",j:"when is"},{u:"U3",e:"where's",j:"where is"},{u:"U3",e:"month",j:"月"},{u:"U3",e:"date",j:"日付"},{u:"U3",e:"January",j:"1月"},{u:"U3",e:"February",j:"2月"},{u:"U3",e:"March",j:"3月"},{u:"U3",e:"April",j:"4月"},{u:"U3",e:"June",j:"6月"},{u:"U3",e:"July",j:"7月"},{u:"U3",e:"August",j:"8月"},{u:"U3",e:"September",j:"9月"},{u:"U3",e:"October",j:"10月"},{u:"U3",e:"November",j:"11月"},{u:"U3",e:"December",j:"12月"},{u:"U3",e:"first",j:"1日"},{u:"U3",e:"second",j:"2日"},{u:"U3",e:"third",j:"3日"},{u:"U3",e:"fourth",j:"4日"},{u:"U3",e:"fifth",j:"5日"},{u:"U3",e:"sixth",j:"6日"},{u:"U3",e:"seventh",j:"7日"},{u:"U3",e:"eighth",j:"8日"},{u:"U3",e:"ninth",j:"9日"},{u:"U3",e:"tenth",j:"10日"},{u:"U3",e:"eleventh",j:"11日"},{u:"U3",e:"twelfth",j:"12日"},{u:"U3",e:"thirteenth",j:"13日"},{u:"U3",e:"fourteenth",j:"14日"},{u:"U3",e:"fifteenth",j:"15日"},{u:"U3",e:"sixteenth",j:"16日"},{u:"U3",e:"seventeenth",j:"17日"},{u:"U3",e:"eighteenth",j:"18日"},{u:"U3",e:"nineteenth",j:"19日"},{u:"U3",e:"twentieth",j:"20日"},{u:"U3",e:"thirtieth",j:"30日"},{u:"U3",e:"in",j:"…に"},{u:"U3",e:"game",j:"試合"},{u:"U3",e:"and",j:"…と"},{u:"U3",e:"see",j:"見える"},{u:"U3",e:"at",j:"…で"},{u:"U3",e:"is",j:"ある"},{u:"U3",e:"by",j:"…のそばに"},{u:"U3",e:"on",j:"…の上に"},
+// SaL3
+{u:"SaL3",e:"sister",j:"姉妹"},{u:"SaL3",e:"car",j:"自動車"},{u:"SaL3",e:"girl",j:"少女"},{u:"SaL3",e:"small",j:"小さい"},{u:"SaL3",e:"boy",j:"少年"},{u:"SaL3",e:"mouse",j:"ネズミ"},{u:"SaL3",e:"brown",j:"茶色の"},{u:"SaL3",e:"water",j:"水"},{u:"SaL3",e:"T-shirt",j:"Tシャツ"},{u:"SaL3",e:"star",j:"星"},{u:"SaL3",e:"round",j:"丸い"},{u:"SaL3",e:"baseball",j:"野球"},{u:"SaL3",e:"summer",j:"夏"},{u:"SaL3",e:"winter",j:"冬"},{u:"SaL3",e:"house",j:"家"},{u:"SaL3",e:"town",j:"町"},{u:"SaL3",e:"sound",j:"音"},{u:"SaL3",e:"mother",j:"お母さん"},{u:"SaL3",e:"enjoy",j:"…を楽しむ"},{u:"SaL3",e:"fall",j:"秋"},{u:"SaL3",e:"party",j:"パーティー"},{u:"SaL3",e:"bake",j:"(パンなど)を焼く"},{u:"SaL3",e:"ball",j:"ボール"},{u:"SaL3",e:"birthday",j:"誕生日"},
+// Unit 4
+{u:"U4",e:"New Zealand",j:"ニュージーランド"},{u:"U4",e:"puppy",j:"子イヌ"},{u:"U4",e:"of",j:"…の"},{u:"U4",e:"someday",j:"いつか"},{u:"U4",e:"lot",j:"たくさん"},{u:"U4",e:"they",j:"彼らは"},{u:"U4",e:"animal",j:"動物"},{u:"U4",e:"visit",j:"訪れる"},{u:"U4",e:"Japan",j:"日本"},{u:"U4",e:"many",j:"たくさんの"},{u:"U4",e:"one of",j:"…の1つ"},{u:"U4",e:"a lot of",j:"たくさんの"},{u:"U4",e:"How many ...?",j:"どれくらい多くの"},{u:"U4",e:"they're",j:"they are"},{u:"U4",e:"really",j:"本当に"},{u:"U4",e:"family",j:"家族"},{u:"U4",e:"how",j:"どれくらい"},{u:"U4",e:"so",j:"とても"},{u:"U4",e:"noon",j:"正午"},{u:"U4",e:"last",j:"最後の"},{u:"U4",e:"like",j:"…のような"},{u:"U4",e:"o'clock",j:"…時"},{u:"U4",e:"time",j:"時刻"},{u:"U4",e:"afternoon",j:"午後"},{u:"U4",e:"sport",j:"スポーツ"},{u:"U4",e:"a.m.",j:"午前"},{u:"U4",e:"p.m.",j:"午後"},{u:"U4",e:"basketball",j:"バスケットボール"},{u:"U4",e:"Sounds ...",j:"…そうですね"},{u:"U4",e:"what",j:"何の"},{u:"U4",e:"sound",j:"…に聞こえる"},{u:"U4",e:"the",j:"その"},{u:"U4",e:"this",j:"今"},{u:"U4",e:"class",j:"授業"},{u:"U4",e:"front",j:"前面"},{u:"U4",e:"be",j:"…である"},{u:"U4",e:"nervous",j:"緊張して"},{u:"U4",e:"worry",j:"心配する"},{u:"U4",e:"yourself",j:"あなた自身を"},{u:"U4",e:"sheep",j:"ヒツジ"},{u:"U4",e:"kiwi",j:"キーウィ"},{u:"U4",e:"right",j:"正しい"},{u:"U4",e:"turn",j:"順番"},{u:"U4",e:"please",j:"どうぞ"},{u:"U4",e:"look",j:"見る"},{u:"U4",e:"enjoy oneself",j:"楽しむ"},{u:"U4",e:"look at",j:"…を見る"},{u:"U4",e:"it",j:"その"},{u:"U4",e:"me",j:"私"},{u:"U4",e:"at",j:"…へ"},{u:"U4",e:"we",j:"人は"},
+// SaL4
+{u:"SaL4",e:"fun",j:"楽しいこと"},{u:"SaL4",e:"long",j:"長い"},{u:"SaL4",e:"song",j:"歌"},{u:"SaL4",e:"fine",j:"元気な"},{u:"SaL4",e:"pet",j:"ペット"},{u:"SaL4",e:"stop",j:"とまる"},{u:"SaL4",e:"eat",j:"…を食べる"},{u:"SaL4",e:"sad",j:"悲しい"},{u:"SaL4",e:"eel",j:"ウナギ"},{u:"SaL4",e:"gift",j:"贈り物"},{u:"SaL4",e:"man",j:"男性"},{u:"SaL4",e:"bench",j:"ベンチ"},{u:"SaL4",e:"picture",j:"絵"},{u:"SaL4",e:"basket",j:"かご"},{u:"SaL4",e:"kitchen",j:"台所"},{u:"SaL4",e:"table",j:"テーブル"},{u:"SaL4",e:"all",j:"全部"},
+// Unit 5
+{u:"U5",e:"as",j:"…として"},{u:"U5",e:"tour",j:"旅行"},{u:"U5",e:"guide",j:"ガイド"},{u:"U5",e:"write",j:"書く"},{u:"U5",e:"blog",j:"ブログ"},{u:"U5",e:"local",j:"地元の"},{u:"U5",e:"beautiful",j:"美しい"},{u:"U5",e:"spot",j:"地点"},{u:"U5",e:"his",j:"彼の"},{u:"U5",e:"brother",j:"兄"},{u:"U5",e:"year",j:"…歳"},{u:"U5",e:"old",j:"…歳の"},{u:"U5",e:"work",j:"働く"},{u:"U5",e:"nature",j:"自然"},{u:"U5",e:"... year(s) old",j:"…歳"},{u:"U5",e:"enjoy ...ing",j:"…して楽しむ"},{u:"U5",e:"any",j:"いくらかの"},{u:"U5",e:"does",j:"[疑問文]"},{u:"U5",e:"has",j:"haveの三人称"},{u:"U5",e:"there",j:"そこに"},{u:"U5",e:"surf",j:"サーフィンをする"},{u:"U5",e:"life",j:"生活"},{u:"U5",e:"question",j:"質問"},{u:"U5",e:"weekend",j:"週末"},{u:"U5",e:"swim",j:"泳ぐ"},{u:"U5",e:"sometimes",j:"ときどき"},{u:"U5",e:"dolphin",j:"イルカ"},{u:"U5",e:"doesn't",j:"does not"},{u:"U5",e:"cafe",j:"喫茶店"},{u:"U5",e:"website",j:"ウェブサイト"},{u:"U5",e:"popular",j:"人気のある"},{u:"U5",e:"owner",j:"所有者"},{u:"U5",e:"know",j:"知っている"},{u:"U5",e:"patty",j:"パティ"},{u:"U5",e:"fried",j:"油であげた"},{u:"U5",e:"top",j:"表面"},{u:"U5",e:"wonderful",j:"すばらしい"},{u:"U5",e:"restaurant",j:"レストラン"},{u:"U5",e:"friendly",j:"好意的な"},{u:"U5",e:"dish",j:"料理"},{u:"U5",e:"fried egg",j:"目玉焼き"},{u:"U5",e:"on top of",j:"…の上に"},
+// Unit 6
+{u:"U6",e:"him",j:"彼を"},{u:"U6",e:"say",j:"言う"},{u:"U6",e:"everything",j:"何でも"},{u:"U6",e:"show",j:"ショー"},{u:"U6",e:"her",j:"彼女を"},{u:"U6",e:"performer",j:"演技者"},{u:"U6",e:"U.K.",j:"イギリス"},{u:"U6",e:"together",j:"いっしょに"},{u:"U6",e:"let's",j:"…しよう"},{u:"U6",e:"Why don't we ...?",j:"…しませんか"},{u:"U6",e:"how's",j:"how is"},{u:"U6",e:"to",j:"…にとって"},{u:"U6",e:"fine",j:"けっこうな"},{u:"U6",e:"for",j:"…するための"},{u:"U6",e:"the",j:"英国"},{u:"U6",e:"see",j:"…に会う"},{u:"U6",e:"minute",j:"分"},{u:"U6",e:"wait",j:"待つ"},{u:"U6",e:"whose",j:"だれの"},{u:"U6",e:"yours",j:"あなた(たち)のもの"},{u:"U6",e:"mine",j:"私のもの"},{u:"U6",e:"maybe",j:"たぶん"},{u:"U6",e:"careful",j:"注意深い"},{u:"U6",e:"crowded",j:"こみ合った"},{u:"U6",e:"history",j:"歴史"},{u:"U6",e:"still",j:"まだ"},{u:"U6",e:"over",j:"…より多く"},{u:"U6",e:"start",j:"始まる"},{u:"U6",e:"ticket",j:"チケット"},{u:"U6",e:"(Riko)'s",j:"(理子)の"},{u:"U6",e:"Thanks.",j:"ありがとう"},{u:"U6",e:"be careful with",j:"…のあつかいに気をつける"},{u:"U6",e:"How old ...?",j:"何歳で"},{u:"U6",e:"in",j:"…に"},{u:"U6",e:"thank",j:"感謝"},{u:"U6",e:"with",j:"…に関して"},{u:"U6",e:"here",j:"ここに"},{u:"U6",e:"well",j:"ええと"},{u:"U6",e:"cushion",j:"クッション"},{u:"U6",e:"different",j:"いろいろな"},{u:"U6",e:"role",j:"役"},{u:"U6",e:"use",j:"使う"},{u:"U6",e:"only",j:"ただ…だけ"},{u:"U6",e:"prop",j:"小道具"},{u:"U6",e:"which",j:"どちら"},{u:"U6",e:"or",j:"…かまたは～"},{u:"U6",e:"casual",j:"カジュアルな"},{u:"U6",e:"large",j:"多い"},{u:"U6",e:"collection",j:"収集したもの"},{u:"U6",e:"hand",j:"手"},{u:"U6",e:"towel",j:"タオル"},{u:"U6",e:"wear",j:"…を着ている"},{u:"U6",e:"clothes",j:"衣服"},{u:"U6",e:"for",j:"…に対して"},{u:"U6",e:"in",j:"…において"},
+// RLE2
+{u:"RLE2",e:"play",j:"演じる"},{u:"RLE2",e:"open",j:"開く"},{u:"RLE2",e:"close",j:"閉じる"},{u:"RLE2",e:"window",j:"窓"},{u:"RLE2",e:"sure",j:"もちろん"},{u:"RLE2",e:"problem",j:"問題"},{u:"RLE2",e:"little",j:"少し"},{u:"RLE2",e:"dark",j:"暗い"},{u:"RLE2",e:"light",j:"明かり"},{u:"RLE2",e:"just",j:"ただ…だけ"},{u:"RLE2",e:"moment",j:"瞬間"},{u:"RLE2",e:"off",j:"消えて"},{u:"RLE2",e:"borrow",j:"借りる"},{u:"RLE2",e:"help",j:"手伝う"},{u:"RLE2",e:"homework",j:"宿題"},{u:"RLE2",e:"No problem.",j:"いいですよ"},{u:"RLE2",e:"a little",j:"少し"},{u:"RLE2",e:"turn on",j:"つける"},{u:"RLE2",e:"help ... with ~",j:"…を～の面で手伝う"},{u:"RLE2",e:"All right.",j:"よろしい"},{u:"RLE2",e:"Just a moment.",j:"ちょっと待って"},{u:"RLE2",e:"turn off",j:"消す"},{u:"RLE2",e:"all",j:"全く"},{u:"RLE2",e:"and",j:"そして"},{u:"RLE2",e:"can",j:"…してもよいですか"},{u:"RLE2",e:"can",j:"…してくれますか"},{u:"RLE2",e:"no",j:"1つ[人]もない"},{u:"RLE2",e:"on",j:"通じて"},{u:"RLE2",e:"this",j:"この"},
+// LR1
+{u:"LR1",e:"check",j:"調べる"},{u:"LR1",e:"however",j:"しかしながら"},{u:"LR1",e:"easy",j:"簡単な"},{u:"LR1",e:"ago",j:"前に"},{u:"LR1",e:"timekeeping",j:"時間の計測"},{u:"LR1",e:"ancient",j:"古代の"},{u:"LR1",e:"Egyptian",j:"エジプト人"},{u:"LR1",e:"put",j:"置く"},{u:"LR1",e:"stick",j:"棒"},{u:"LR1",e:"shadow",j:"影"},{u:"LR1",e:"told",j:"tellの過去形"},{u:"LR1",e:"long ago",j:"ずっと前に"},{u:"LR1",e:"some of",j:"いくつかの"},{u:"LR1",e:"about",j:"およそ"},{u:"LR1",e:"some",j:"いくらか"},{u:"LR1",e:"measure",j:"測る"},{u:"LR1",e:"without",j:"…なしで"},{u:"LR1",e:"pot",j:"つぼ"},{u:"LR1",e:"hole",j:"穴"},{u:"LR1",e:"decrease",j:"減る"},{u:"LR1",e:"line",j:"線"},{u:"LR1",e:"fire",j:"火"},{u:"LR1",e:"burn",j:"燃やす"},{u:"LR1",e:"candle",j:"ろうそく"},{u:"LR1",e:"gave",j:"giveの過去形"},{u:"LR1",e:"give",j:"与える"},{u:"LR1",e:"at night",j:"夜に"},{u:"LR1",e:"little by little",j:"少しずつ"},{u:"LR1",e:"could",j:"できた"},{u:"LR1",e:"little",j:"少し"},{u:"LR1",e:"other",j:"ほかの"},{u:"LR1",e:"mechanical",j:"機械の"},{u:"LR1",e:"weight",j:"おもり"},{u:"LR1",e:"power",j:"動力を供給する"},{u:"LR1",e:"hour",j:"時刻"},{u:"LR1",e:"bell",j:"ベル"},{u:"LR1",e:"heavy",j:"重い"},{u:"LR1",e:"move",j:"動かす"},{u:"LR1",e:"improve",j:"改善する"},{u:"LR1",e:"light",j:"軽い"},{u:"LR1",e:"eventually",j:"最後には"},{u:"LR1",e:"began",j:"beginの過去形"},{u:"LR1",e:"begin",j:"始める"},{u:"LR1",e:"carry",j:"運ぶ"},{u:"LR1",e:"begin to",j:"し始める"},{u:"LR1",e:"type",j:"種類"},{u:"LR1",e:"result",j:"結果"},{u:"LR1",e:"invention",j:"発明"},{u:"LR1",e:"effort",j:"努力"},{u:"LR1",e:"even",j:"…でさえ"},{u:"LR1",e:"recognize",j:"認識する"},{u:"LR1",e:"idea",j:"考え"},{u:"LR1",e:"technology",j:"技術"},{u:"LR1",e:"wisdom",j:"知恵"},{u:"LR1",e:"it is time to",j:"…すべき時である"},
+// LR2
+{u:"LR2",e:"once",j:"かつて"},{u:"LR2",e:"poor",j:"貧しい"},{u:"LR2",e:"rich",j:"金持ちの"},{u:"LR2",e:"sell",j:"売る"},{u:"LR2",e:"candy",j:"キャンディー"},{u:"LR2",e:"door-to-door",j:"戸別に"},{u:"LR2",e:"earn",j:"かせぐ"},{u:"LR2",e:"few",j:"少しの"},{u:"LR2",e:"coin",j:"硬貨"},{u:"LR2",e:"knock",j:"ノックする"},{u:"LR2",e:"well-off",j:"裕福な"},{u:"LR2",e:"herself",j:"彼女自身"},{u:"LR2",e:"a glass of",j:"コップ1杯の"},{u:"LR2",e:"a few",j:"少数の"},{u:"LR2",e:"be about to",j:"今にも…しようとしている"},{u:"LR2",e:"about",j:"今にも"},{u:"LR2",e:"pocket",j:"ポケット"},{u:"LR2",e:"reply",j:"答える"},{u:"LR2",e:"pay",j:"払う"},{u:"LR2",e:"kindness",j:"親切"},{u:"LR2",e:"away",j:"はなれて"},{u:"LR2",e:"wonder",j:"思いをめぐらす"},{u:"LR2",e:"hope",j:"望む"},{u:"LR2",e:"with a smile",j:"にっこり笑って"},{u:"LR2",e:"do well",j:"順調にやる"},{u:"LR2",e:"before",j:"…する前に"},{u:"LR2",e:"better",j:"もっとよい"},{u:"LR2",e:"smile",j:"ほほえみ"},{u:"LR2",e:"ill",j:"病気で"},{u:"LR2",e:"sent",j:"sendの過去形"},{u:"LR2",e:"send",j:"送る"},{u:"LR2",e:"operation",j:"手術"},{u:"LR2",e:"woke",j:"wakeの過去形"},{u:"LR2",e:"alive",j:"生きて"},{u:"LR2",e:"envelope",j:"封筒"},{u:"LR2",e:"bill",j:"請求書"},{u:"LR2",e:"afraid",j:"こわがって"},{u:"LR2",e:"inside",j:"内側に"},{u:"LR2",e:"paid",j:"支払い済みの"},{u:"LR2",e:"go by",j:"過ぎる"},{u:"LR2",e:"in front of",j:"…の前で"},{u:"LR2",e:"right away",j:"すぐに"},{u:"LR2",e:"be afraid to",j:"…するのがこわい"},{u:"LR2",e:"in full",j:"全部"},{u:"LR2",e:"here's",j:"here is"},{u:"LR2",e:"full",j:"完全な"},{u:"LR2",e:"right",j:"ちょうど"},{u:"LR2",e:"say",j:"書いてある"},
+// LR3
+{u:"LR3",e:"planet",j:"惑星"},{u:"LR3",e:"photograph",j:"写真"},{u:"LR3",e:"university",j:"大学"},{u:"LR3",e:"attracted",j:"ひきつけられる"},{u:"LR3",e:"middle",j:"中央"},{u:"LR3",e:"wilderness",j:"荒野"},{u:"LR3",e:"mayor",j:"市長"},{u:"LR3",e:"invite",j:"招待する"},{u:"LR3",e:"dream",j:"夢"},{u:"LR3",e:"true",j:"本当の"},{u:"LR3",e:"in the middle of",j:"…の真ん中に"},{u:"LR3",e:"for himself",j:"自分で"},{u:"LR3",e:"come true",j:"実現する"},{u:"LR3",e:"change",j:"変える"},{u:"LR3",e:"life",j:"一生"},{u:"LR3",e:"write",j:"手紙を書く"},{u:"LR3",e:"among",j:"…の中で"},{u:"LR3",e:"convenience",j:"便利なこと"},{u:"LR3",e:"hunt",j:"狩る"},{u:"LR3",e:"gather",j:"集める"},{u:"LR3",e:"berry",j:"ベリー"},{u:"LR3",e:"tradition",j:"伝統"},{u:"LR3",e:"harmoniously",j:"調和して"},{u:"LR3",e:"understood",j:"understandの過去形"},{u:"LR3",e:"living",j:"生きている"},{u:"LR3",e:"share",j:"共有する"},{u:"LR3",e:"became",j:"becomeの過去形"},{u:"LR3",e:"part",j:"部分"},{u:"LR3",e:"return",j:"帰る"},{u:"LR3",e:"photographer",j:"写真家"},{u:"LR3",e:"camp",j:"キャンプをする"},{u:"LR3",e:"severe",j:"厳しい"},{u:"LR3",e:"wild",j:"野生の"},{u:"LR3",e:"lonely",j:"ひとりぼっちの"},{u:"LR3",e:"freedom",j:"自由"},{u:"LR3",e:"playful",j:"楽しげな"},{u:"LR3",e:"scene",j:"景色"},{u:"LR3",e:"suddenly",j:"突然"},{u:"LR3",e:"kill",j:"殺す"},{u:"LR3",e:"alone",j:"ひとりで"},{u:"LR3",e:"end",j:"終わり"},{u:"LR3",e:"free",j:"自由な"},{u:"LR3",e:"wonder",j:"驚き"},{u:"LR3",e:"glacier",j:"氷河"},{u:"LR3",e:"disappear",j:"姿を消す"},{u:"LR3",e:"global warming",j:"地球温暖化"},{u:"LR3",e:"enough",j:"十分な"},{u:"LR3",e:"habitat",j:"生息地"},{u:"LR3",e:"grow",j:"…になる"},{u:"LR3",e:"lose",j:"失う"},{u:"LR3",e:"land",j:"土地"},{u:"LR3",e:"island",j:"島"},{u:"LR3",e:"slowly",j:"ゆっくりと"},{u:"LR3",e:"twice",j:"2倍"},{u:"LR3",e:"rest",j:"残り"},{u:"LR3",e:"Earth",j:"地球"},{u:"LR3",e:"remind",j:"思い出させる"},{u:"LR3",e:"past",j:"過去"},{u:"LR3",e:"pass",j:"手渡す"},{u:"LR3",e:"beauty",j:"美しさ"},{u:"LR3",e:"turn into",j:"…になる"},{u:"LR3",e:"twice as ... as",j:"～より2倍…"},{u:"LR3",e:"remind ... of",j:"…に～を思い出させる"},{u:"LR3",e:"pass on ... to",j:"…を～に伝える"},{u:"LR3",e:"into",j:"…に(なる)"},{u:"LR3",e:"way",j:"方法"},
+// Unit 7
+{u:"U7",e:"of",j:"…を"},{u:"U7",e:"tomorrow",j:"明日"},{u:"U7",e:"plan",j:"計画"},{u:"U7",e:"free",j:"ひまな"},{u:"U7",e:"mean",j:"…を意味する"},{u:"U7",e:"forward",j:"楽しみに待つ"},{u:"U7",e:"busy",j:"忙しい"},{u:"U7",e:"talk",j:"話す"},{u:"U7",e:"up",j:"どうしたのですか"},{u:"U7",e:"What's up?",j:"どうしたのですか"},{u:"U7",e:"sound like",j:"…のように聞こえる"},{u:"U7",e:"look forward to",j:"…を楽しみに待つ"},{u:"U7",e:"am",j:"[進行形]"},{u:"U7",e:"hello",j:"もしもし"},{u:"U7",e:"at",j:"…に"},{u:"U7",e:"online",j:"オンラインの"},{u:"U7",e:"market",j:"市場"},{u:"U7",e:"souvenir",j:"記念品"},{u:"U7",e:"place",j:"場所"},{u:"U7",e:"appear",j:"現れる"},{u:"U7",e:"those",j:"あれらの"},{u:"U7",e:"buy",j:"…を買う"},{u:"U7",e:"people",j:"人々"},{u:"U7",e:"Welcome to ....",j:"…へようこそ"},{u:"U7",e:"also",j:"そのうえ"},{u:"U7",e:"are",j:"[進行形]"},{u:"U7",e:"take",j:"撮る"},{u:"U7",e:"welcome",j:"ようこそ"},{u:"U7",e:"around",j:"…のまわりを回って"},{u:"U7",e:"home",j:"故郷"},{u:"U7",e:"mom",j:"お母さん"},{u:"U7",e:"dad",j:"お父さん"},{u:"U7",e:"travel",j:"旅行する"},{u:"U7",e:"angry",j:"怒った"},{u:"U7",e:"palace",j:"宮殿"},{u:"U7",e:"exciting",j:"興奮させるような"},{u:"U7",e:"late",j:"遅い"},{u:"U7",e:"sorry",j:"すまなく思って"},{u:"U7",e:"funny",j:"おかしな"},{u:"U7",e:"OK",j:"よろしい"},{u:"U7",e:"I'm sorry.",j:"ごめんなさい"},{u:"U7",e:"we're",j:"we are"},{u:"U7",e:"big",j:"大きい"},{u:"U7",e:"excuse",j:"言い訳"},{u:"U7",e:"for",j:"…のために"},{u:"U7",e:"how",j:"なんと"},{u:"U7",e:"is",j:"[進行形]"},{u:"U7",e:"too",j:"あまりに"},{u:"U7",e:"well",j:"さて"},{u:"U7",e:"what",j:"なんと"},
+// RLE3
+{u:"RLE3",e:"pardon",j:"何とおっしゃいましたか"},{u:"RLE3",e:"along",j:"…に沿って"},{u:"RLE3",e:"street",j:"通り"},{u:"RLE3",e:"traffic light",j:"交通信号"},{u:"RLE3",e:"straight",j:"まっすぐに"},{u:"RLE3",e:"factory",j:"工場"},{u:"RLE3",e:"building",j:"建物"},{u:"RLE3",e:"woman",j:"女性"},{u:"RLE3",e:"hospital",j:"病院"},{u:"RLE3",e:"left",j:"左に"},{u:"RLE3",e:"right",j:"右に"},{u:"RLE3",e:"museum",j:"博物館"},{u:"RLE3",e:"post office",j:"郵便局"},{u:"RLE3",e:"library",j:"図書館"},{u:"RLE3",e:"look for",j:"…をさがす"},{u:"RLE3",e:"Pardon me?",j:"何とおっしゃいましたか"},{u:"RLE3",e:"Let's see.",j:"ええと"},{u:"RLE3",e:"go along",j:"進む"},{u:"RLE3",e:"for",j:"…のために"},{u:"RLE3",e:"large",j:"大きい"},{u:"RLE3",e:"turn",j:"向く"},
+// Unit 8
+{u:"U8",e:"ethnic",j:"民族(特有)の"},{u:"U8",e:"Africa",j:"アフリカ"},{u:"U8",e:"Kenya",j:"ケニア"},{u:"U8",e:"volunteer",j:"ボランティア"},{u:"U8",e:"need",j:"困っている状態"},{u:"U8",e:"teach",j:"…について教える"},{u:"U8",e:"try",j:"試す"},{u:"U8",e:"best",j:"最もよいもの"},{u:"U8",e:"respect",j:"…を尊敬する"},{u:"U8",e:"become",j:"…になる"},{u:"U8",e:"cousin",j:"いとこ"},{u:"U8",e:"children",j:"childの複数形"},{u:"U8",e:"child",j:"子供"},{u:"U8",e:"country",j:"国"},{u:"U8",e:"always",j:"いつも"},{u:"U8",e:"in need",j:"困っている"},{u:"U8",e:"do one's best",j:"最善を尽くす"},{u:"U8",e:"try to",j:"…しようと試みる"},{u:"U8",e:"in",j:"…で"},{u:"U8",e:"or",j:"…もない"},{u:"U8",e:"some",j:"一部の"},{u:"U8",e:"African",j:"アフリカ(人)の"},{u:"U8",e:"reduce",j:"減らす"},{u:"U8",e:"waste",j:"ごみ"},{u:"U8",e:"plastic",j:"プラスチック"},{u:"U8",e:"paper",j:"紙の"},{u:"U8",e:"straw",j:"ストロー"},{u:"U8",e:"original",j:"独創的な"},{u:"U8",e:"reusable",j:"再利用できる"},{u:"U8",e:"course",j:"もちろん"},{u:"U8",e:"meat",j:"肉"},{u:"U8",e:"pie",j:"パイ"},{u:"U8",e:"bean",j:"豆"},{u:"U8",e:"soup",j:"スープ"},{u:"U8",e:"chicken",j:"鶏(肉)"},{u:"U8",e:"curry",j:"カレー"},{u:"U8",e:"of course",j:"もちろん"},{u:"U8",e:"need to",j:"…する必要がある"},{u:"U8",e:"all",j:"全ての"},{u:"U8",e:"need",j:"…を必要とする"},{u:"U8",e:"that",j:"あの"},{u:"U8",e:"one",j:"1つ"},{u:"U8",e:"well",j:"井戸"},{u:"U8",e:"other",j:"ほかの"},{u:"U8",e:"village",j:"村"},{u:"U8",e:"collect",j:"…を集める"},{u:"U8",e:"far",j:"遠くに"},{u:"U8",e:"group",j:"グループ"},{u:"U8",e:"build",j:"…を建てる"},{u:"U8",e:"these",j:"これら"},{u:"U8",e:"money",j:"お金"},{u:"U8",e:"get",j:"…を得る"},{u:"U8",e:"clean",j:"きれいな"},{u:"U8",e:"happy",j:"幸せな"},{u:"U8",e:"river",j:"川"},{u:"U8",e:"on the other hand",j:"他方では"},{u:"U8",e:"for a long time",j:"長い間"},{u:"U8",e:"for",j:"…の間"},{u:"U8",e:"from",j:"…から"},{u:"U8",e:"help",j:"助け"},{u:"U8",e:"look",j:"…のように見える"},{u:"U8",e:"time",j:"時間"},
+// RLE4
+{u:"RLE4",e:"server",j:"給仕"},{u:"RLE4",e:"would",j:"…がほしい"},{u:"RLE4",e:"anything",j:"何か"},{u:"RLE4",e:"else",j:"その他に"},{u:"RLE4",e:"full",j:"いっぱいの"},{u:"RLE4",e:"mushroom",j:"キノコ"},{u:"RLE4",e:"steak",j:"ステーキ"},{u:"RLE4",e:"salad",j:"サラダ"},{u:"RLE4",e:"dessert",j:"デザート"},{u:"RLE4",e:"would like",j:"…がほしい"},{u:"RLE4",e:"would like to",j:"…したい"},{u:"RLE4",e:"No, thank you.",j:"いいえ、けっこうです"},{u:"RLE4",e:"I'd",j:"I would"},{u:"RLE4",e:"Mrs.",j:"…さん"},{u:"RLE4",e:"precious",j:"貴重な"},{u:"RLE4",e:"able",j:"…することができる"},{u:"RLE4",e:"be able to",j:"…することができる"},{u:"RLE4",e:"Best wishes,",j:"それでは"},{u:"RLE4",e:"wish",j:"祈り"},
+// SA1
+{u:"SA1",e:"flour",j:"小麦粉"},{u:"SA1",e:"cabbage",j:"キャベツ"},{u:"SA1",e:"crispy",j:"カリカリした"},{u:"SA1",e:"tasty",j:"おいしい"},{u:"SA1",e:"easily",j:"簡単に"},{u:"SA1",e:"ingredient",j:"材料"},{u:"SA1",e:"reason",j:"理由"},{u:"SA1",e:"of",j:"…の"},
+// SA2
+{u:"SA2",e:"voice",j:"声"},{u:"SA2",e:"word",j:"歌詞"},{u:"SA2",e:"cheer",j:"…を元気づける"},{u:"SA2",e:"concert",j:"演奏会"},{u:"SA2",e:"dome",j:"丸屋根"},{u:"SA2",e:"stage",j:"舞台"},{u:"SA2",e:"performance",j:"演技"},{u:"SA2",e:"again",j:"もう一度"},{u:"SA2",e:"hero",j:"英雄"},{u:"SA2",e:"singer",j:"歌手"},{u:"SA2",e:"world",j:"世界"},{u:"SA2",e:"music",j:"音楽"},{u:"SA2",e:"all over",j:"…のいたるところに"},{u:"SA2",e:"cheer ... up",j:"…を元気づける"},{u:"SA2",e:"have",j:"…を聞く"},{u:"SA2",e:"over",j:"…のいたるところに"},{u:"SA2",e:"up",j:"勢いよく"},{u:"SA2",e:"artificial",j:"人工の"},{u:"SA2",e:"turf",j:"芝"},{u:"SA2",e:"field",j:"競技場"},{u:"SA2",e:"video",j:"映像"},{u:"SA2",e:"unique",j:"特有の"},{u:"SA2",e:"almost",j:"ほとんど"},{u:"SA2",e:"belong",j:"…に所属する"},{u:"SA2",e:"clean up",j:"きれいにそうじする"},{u:"SA2",e:"letter",j:"手紙"},
+// Unit 9
+{u:"U9",e:"back",j:"戻って"},{u:"U9",e:"during",j:"…の間ずっと"},{u:"U9",e:"stay",j:"滞在する"},{u:"U9",e:"snowboarding",j:"スノーボード"},{u:"U9",e:"Christmas Day",j:"クリスマス"},{u:"U9",e:"relax",j:"くつろぐ"},{u:"U9",e:"met",j:"meetの過去形"},{u:"U9",e:"ice hockey",j:"アイスホッケー"},{u:"U9",e:"went",j:"goの過去形"},{u:"U9",e:"vacation",j:"休暇"},{u:"U9",e:"mountain",j:"山"},{u:"U9",e:"saw",j:"seeの過去形"},{u:"U9",e:"go back",j:"帰る"},{u:"U9",e:"at home",j:"家で"},{u:"U9",e:"year",j:"年"},{u:"U9",e:"for",j:"…のために"},{u:"U9",e:"last",j:"この前の"},{u:"U9",e:"meet",j:"…に会う"},{u:"U9",e:"did",j:"doの過去形"},{u:"U9",e:"traditional",j:"伝統的な"},{u:"U9",e:"special",j:"特別な"},{u:"U9",e:"grandparent",j:"祖父"},{u:"U9",e:"wrote",j:"writeの過去形"},{u:"U9",e:"New Year",j:"新年"},{u:"U9",e:"ate",j:"eatの過去形"},{u:"U9",e:"New Year's Eve",j:"大みそか"},{u:"U9",e:"card",j:"カード"},{u:"U9",e:"rice cake",j:"もち"},{u:"U9",e:"Good for you!",j:"よくやった"},{u:"U9",e:"didn't",j:"did not"},{u:"U9",e:"How nice!",j:"いいね"},{u:"U9",e:"clean",j:"…をそうじする"},{u:"U9",e:"for",j:"…にとって"},{u:"U9",e:"spent",j:"spendの過去形"},{u:"U9",e:"spend",j:"過ごす"},{u:"U9",e:"came",j:"comeの過去形"},{u:"U9",e:"bought",j:"buyの過去形"},{u:"U9",e:"fortune slip",j:"おみくじ"},{u:"U9",e:"read",j:"readの過去形"},{u:"U9",e:"said",j:"sayの過去形"},{u:"U9",e:"charm",j:"お守り"},{u:"U9",e:"got",j:"getの過去形"},{u:"U9",e:"wooden",j:"木製の"},{u:"U9",e:"wish",j:"願い"},{u:"U9",e:"board game",j:"ボードゲーム"},{u:"U9",e:"New Year's Day",j:"元日"},{u:"U9",e:"future",j:"未来"},{u:"U9",e:"bad",j:"悪い"},{u:"U9",e:"tablet",j:"板状の小片"},{u:"U9",e:"had",j:"haveの過去形"},{u:"U9",e:"have a ... time",j:"…な時を過ごす"},{u:"U9",e:"have",j:"過ごす"},{u:"U9",e:"so",j:"そんなに"},{u:"U9",e:"time",j:"時間"},
+// RLE5
+{u:"RLE5",e:"dear",j:"親愛なる"},{u:"RLE5",e:"grandma",j:"おばあちゃん"},{u:"RLE5",e:"grandpa",j:"おじいちゃん"},{u:"RLE5",e:"ski",j:"スキーをする"},{u:"RLE5",e:"fell",j:"fallの過去形"},{u:"RLE5",e:"Mt.",j:"…山"},{u:"RLE5",e:"snow",j:"雪"},{u:"RLE5",e:"outside",j:"外で"},{u:"RLE5",e:"miss",j:"…がいないのをさびしく思う"},{u:"RLE5",e:"care",j:"世話"},{u:"RLE5",e:"down",j:"下に"},{u:"RLE5",e:"hotel",j:"ホテル"},{u:"RLE5",e:"go ...ing",j:"…しに行く"},{u:"RLE5",e:"for the first time",j:"はじめて"},{u:"RLE5",e:"fall down",j:"倒れる"},{u:"RLE5",e:"take care of",j:"…を大事にする"},{u:"RLE5",e:"How are you?",j:"お元気ですか"},{u:"RLE5",e:"am",j:"…いる"},{u:"RLE5",e:"fall",j:"転ぶ"},{u:"RLE5",e:"for",j:"…に"},{u:"RLE5",e:"love",j:"Love"},{u:"RLE5",e:"take",j:"とる"},{u:"RLE5",e:"the",j:"[最上級]"},{u:"RLE5",e:"time",j:"…度"},
+// Unit 10
+{u:"U10",e:"this",j:"今の"},{u:"U10",e:"remember",j:"…を思い出す"},{u:"U10",e:"bored",j:"退屈した"},{u:"U10",e:"were",j:"areの過去形"},{u:"U10",e:"realize",j:"…だと気づく"},{u:"U10",e:"made",j:"makeの過去形"},{u:"U10",e:"mistake",j:"誤り"},{u:"U10",e:"anyone",j:"だれでも"},{u:"U10",e:"won",j:"winの過去形"},{u:"U10",e:"anyway",j:"とにかく"},{u:"U10",e:"chorus",j:"合唱"},{u:"U10",e:"contest",j:"コンテスト"},{u:"U10",e:"was",j:"am,isの過去形"},{u:"U10",e:"memory",j:"思い出"},{u:"U10",e:"at first",j:"最初は"},{u:"U10",e:"like ...ing",j:"…するのが好きである"},{u:"U10",e:"wasn't",j:"was not"},{u:"U10",e:"weren't",j:"were not"},{u:"U10",e:"chorus contest",j:"合唱コンクール"},{u:"U10",e:"place",j:"順位"},{u:"U10",e:"practice",j:"練習"},{u:"U10",e:"win",j:"…を勝ち取る"},{u:"U10",e:"best",j:"最もよい"},{u:"U10",e:"can",j:"…することができる"},{u:"U10",e:"make",j:"…をする"},{u:"U10",e:"hey",j:"やあ"},{u:"U10",e:"break",j:"休憩"},{u:"U10",e:"then",j:"そのときに"},{u:"U10",e:"bring",j:"…をもたらす"},{u:"U10",e:"heart",j:"心臓"},{u:"U10",e:"beat",j:"ドキドキする"},{u:"U10",e:"way",j:"道"},{u:"U10",e:"each",j:"それぞれの"},{u:"U10",e:"album",j:"アルバム"},{u:"U10",e:"yesterday",j:"昨日"},{u:"U10",e:"fast",j:"速く"},{u:"U10",e:"bring back",j:"…を思い出させる"},{u:"U10",e:"on one's way (to)",j:"(…へ)行く途中で"},{u:"U10",e:"show",j:"示す"},{u:"U10",e:"on",j:"…で"},{u:"U10",e:"these",j:"これら"},{u:"U10",e:"trip",j:"旅行"},{u:"U10",e:"campground",j:"キャンプ場"},{u:"U10",e:"hot spring",j:"温泉"},{u:"U10",e:"set",j:"getの過去形"},{u:"U10",e:"set",j:"…を置く"},{u:"U10",e:"tent",j:"テント"},{u:"U10",e:"main",j:"主な"},{u:"U10",e:"campfire",j:"キャンプファイア"},{u:"U10",e:"camping",j:"キャンプ(生活)"},{u:"U10",e:"night",j:"夜"},{u:"U10",e:"event",j:"出来事"},{u:"U10",e:"there is [are]",j:"…がある[いる]"},{u:"U10",e:"set up",j:"…を組み立てる"},{u:"U10",e:"there's",j:"there is"},{u:"U10",e:"isn't",j:"is not"},{u:"U10",e:"aren't",j:"are not"},{u:"U10",e:"around",j:"…のまわりに"},{u:"U10",e:"lot",j:"たくさん"},{u:"U10",e:"up",j:"上へ"},
+// RLE6
+{u:"RLE6",e:"wrong",j:"具合が悪い"},{u:"RLE6",e:"stomachache",j:"胃痛"},{u:"RLE6",e:"before",j:"…の前に"},{u:"RLE6",e:"mild",j:"穏やかな"},{u:"RLE6",e:"medicine",j:"薬"},{u:"RLE6",e:"rest",j:"休み"},{u:"RLE6",e:"headache",j:"頭痛"},{u:"RLE6",e:"fever",j:"熱"},{u:"RLE6",e:"toothache",j:"歯痛"},{u:"RLE6",e:"doctor",j:"医者"},{u:"RLE6",e:"What's wrong?",j:"どうしたのですか"},{u:"RLE6",e:"take a rest",j:"一休みする"},{u:"RLE6",e:"for",j:"…として"},{u:"RLE6",e:"have",j:"…を食べる"},{u:"RLE6",e:"OK",j:"よろしい"},{u:"RLE6",e:"take",j:"飲む"},
+// SA3
+{u:"SA3",e:"ran",j:"runの過去形"},{u:"SA3",e:"relay",j:"リレー競走"},{u:"SA3",e:"another",j:"ほかの"},{u:"SA3",e:"runner",j:"走者"},{u:"SA3",e:"behind",j:"…の後ろに"},{u:"SA3",e:"sports day",j:"運動会"},{u:"SA3",e:"and",j:"…して"},{u:"SA3",e:"just",j:"ちょうど"},
+// Unit 11
+{u:"U11",e:"naughty",j:"いたずらな"},{u:"U11",e:"trick",j:"いたずら"},{u:"U11",e:"crept",j:"creepの過去形"},{u:"U11",e:"creep",j:"はう"},{u:"U11",e:"let",j:"letの過去形"},{u:"U11",e:"let",j:"…を～の状態にさせる"},{u:"U11",e:"shout",j:"叫ぶ"},{u:"U11",e:"escape",j:"逃げる"},{u:"U11",e:"later",j:"あとで"},{u:"U11",e:"thought",j:"thinkの過去形"},{u:"U11",e:"die",j:"死ぬ"},{u:"U11",e:"alone",j:"ひとりだけの"},{u:"U11",e:"out",j:"外へ"},{u:"U11",e:"one day",j:"ある日"},{u:"U11",e:"be full of",j:"…でいっぱいである"},{u:"U11",e:"out of",j:"…から"},{u:"U11",e:"in",j:"…を身につけて"},{u:"U11",e:"little",j:"小さい"},{u:"U11",e:"one",j:"ある…"},{u:"U11",e:"play",j:"…をする"},{u:"U11",e:"think",j:"…だと思う"},{u:"U11",e:"up",j:"近づいて"},{u:"U11",e:"took",j:"takeの過去形"},{u:"U11",e:"vendor",j:"行商人"},{u:"U11",e:"cart",j:"手押し車"},{u:"U11",e:"left",j:"leaveの過去形"},{u:"U11",e:"leave",j:"…を置いていく"},{u:"U11",e:"brought",j:"bringの過去形"},{u:"U11",e:"chestnut",j:"クリ"},{u:"U11",e:"heard",j:"hearの過去形"},{u:"U11",e:"hear",j:"…が聞こえる"},{u:"U11",e:"something",j:"何か"},{u:"U11",e:"himself",j:"彼自身"},{u:"U11",e:"neighbor",j:"近所の人"},{u:"U11",e:"receive",j:"…を受け取る"},{u:"U11",e:"someone",j:"だれか"},{u:"U11",e:"thing",j:"もの"},{u:"U11",e:"god",j:"神"},{u:"U11",e:"say to oneself",j:"…とひとり言を言う"},{u:"U11",e:"bring",j:"…を持ってくる"},{u:"U11",e:"take",j:"…を手に取る"},{u:"U11",e:"through",j:"…を通り抜けて"},{u:"U11",e:"door",j:"ドア"},{u:"U11",e:"into",j:"…の中へ"},{u:"U11",e:"pick",j:"…を拾い上げる"},{u:"U11",e:"gun",j:"銃"},{u:"U11",e:"bang",j:"バン"},{u:"U11",e:"ground",j:"地面"},{u:"U11",e:"fresh",j:"新鮮な"},{u:"U11",e:"floor",j:"床"},{u:"U11",e:"nod",j:"うなずく"},{u:"U11",e:"weakly",j:"弱く"},{u:"U11",e:"drop",j:"…を落とす"},{u:"U11",e:"smoke",j:"煙"},{u:"U11",e:"rose",j:"riseの過去形"},{u:"U11",e:"rise",j:"のぼる"},{u:"U11",e:"look up",j:"視線を上げる"},{u:"U11",e:"pick up",j:"…を拾い上げる"}
+];
 
-// --- INIT ---
+// --- 5. INITIALIZATION ---
 window.onload = function() {
     Game.renderMap();
     document.getElementById('btn-start').onclick = Game.start;
@@ -674,6 +753,7 @@ window.onload = function() {
     document.getElementById('debug-btn').onclick = UI.toggleDebug;
 
     window.onkeydown = function(e) {
+        if(e.key === " ") e.preventDefault(); // Stop scrolling
         if(Battle.state==="QUIZ" && Battle.type==='magic' && e.key==='Enter') document.getElementById('btn-submit').click();
         if(Battle.state==="DEFENSE" && e.key.length===1) Battle.checkDef(e.key);
     };
