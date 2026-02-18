@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Quest: Grade 1 Complete</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
+    :root { --bg: #1a1a20; --panel: rgba(30,30,40,0.95); --acc: #ffd700; --hp: #00ffaa; --dmg: #ff4444; --font: 'DotGothic16', sans-serif; }
+    * { box-sizing: border-box; user-select: none; }
+    body { margin: 0; background: var(--bg); color: #fff; font-family: var(--font); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    #app { width: 100%; max-width: 900px; height: 100%; max-height: 700px; position: relative; background: #111; border: 2px solid #555; border-radius: 12px; overflow: hidden; box-shadow: 0 0 50px #000; }
+    
+    #error-box { display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; color:#ff5555; padding:20px; white-space:pre-wrap; font-family:monospace; text-align:left; overflow:auto; font-size: 14px; line-height: 1.5; }
+
+    .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; background: #15151a; z-index: 10; }
+    .screen.active { display: flex; }
+    .center { align-items: center; justify-content: center; text-align: center; }
+    .hidden { display: none !important; }
+
+    h1 { color: var(--acc); margin: 10px; text-shadow: 2px 2px 0 #000; font-size: 40px; cursor: pointer; }
+    h1:active { transform: scale(0.95); }
+    .btn { background: #334; border: 2px solid #667; color: #fff; padding: 10px 20px; font-family: inherit; font-size: 16px; cursor: pointer; border-radius: 4px; margin: 5px; transition: 0.1s; }
+    .btn:hover { border-color: var(--acc); background: #445; }
+    .start-btn { width: 220px; padding: 20px; font-size: 20px; background: #2a4; margin-top: 30px; }
+    
+    .top-bar, .bottom-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #222; border-bottom: 1px solid #444; }
+    .bottom-bar { justify-content: center; border-top: 1px solid #444; border-bottom: none; }
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; width: 100%; overflow-y: auto; padding: 15px; flex: 1; }
+    .card { background: #2a2a35; border: 1px solid #555; padding: 10px; border-radius: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; font-weight: bold; color: var(--acc); }
+    .card:hover { border-color: var(--acc); background: #353545; transform: scale(1.05); }
+    .item-desc { font-size: 10px; color: #aaa; margin-top: 5px; font-weight: normal; }
+    
+    #map-title { color: var(--acc); font-weight: bold; text-decoration: underline; cursor: pointer; font-size: 18px; }
+    
+    #battle-hud { height: 80px; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444; }
+    .bar-frame { width: 140px; height: 15px; background: #222; border: 1px solid #555; margin: 5px 0; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 100%; transition: width 0.3s; }
+    .hp-color { background: var(--hp); } .enemy-color { background: var(--dmg); }
+    #battle-field { flex: 1; display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 50px; }
+    .sprite { font-size: 80px; filter: drop-shadow(0 5px 10px #000); transition: transform 0.1s; }
+    
+    .panel { height: 260px; background: var(--panel); border-top: 4px solid #fff; padding: 15px; display: flex; flex-direction: column; }
+    #cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 100%; }
+    .cmd-btn { background: #223; border: 2px solid #556; color: #fff; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .cmd-btn:hover { border-color: var(--acc); }
+    
+    #q-text { font-size: 20px; margin: 10px 0; color: #aaf; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 0 20px; }
+    #choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 100%; }
+    .choice-btn { text-align: left; padding: 5px 10px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    #write-area { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    #write-input { font-family: 'Press Start 2P', monospace; font-size: 24px; padding: 10px; width: 90%; text-align: center; background: #222; color: #fff; border: 2px solid var(--acc); border-radius: 8px; margin-bottom: 15px; }
+
+    .overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    #defense-panel { background: rgba(100, 20, 20, 0.95); }
+    .timer-bar { width: 80%; height: 20px; background: #500; margin-bottom: 20px; border: 2px solid #fff; border-radius: 10px; overflow:hidden;}
+    #def-timer-fill { height: 100%; background: #f00; width: 100%; transition: width 0.1s linear; }
+    #def-word { font-family: 'Press Start 2P', monospace; font-size: 40px; text-shadow: 4px 4px 0 #000; margin-bottom: 5px; letter-spacing: 3px; }
+    #def-meaning { font-size: 24px; color: #aaf; margin-bottom: 20px; }
+    #fb-correct-ans { color: var(--acc); font-size: 30px; margin: 20px; font-weight: bold; font-family: 'Press Start 2P', monospace; }
+
+    #title-list { width: 90%; height: 70%; overflow-y: auto; background: #222; border: 2px solid #555; padding: 10px; display: grid; grid-template-columns: 1fr; gap: 5px; }
+    .title-row { padding: 10px; background: #333; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; }
+    .title-row:hover { background: #444; }
+    .title-row.locked { opacity: 0.5; background: #111; color: #888; }
+    .title-row.equipped { border: 2px solid var(--acc); background: #353545; }
+    .title-name { font-weight: bold; font-size: 14px; }
+    .title-desc { font-size: 10px; color: #aaa; margin-left:10px; }
+
+    #debug-btn { position: absolute; bottom: 15px; right: 15px; font-size: 40px; cursor: pointer; z-index: 9999; display: none; }
+    .debug-row { margin: 10px; display: flex; gap: 10px; align-items: center; }
+    .debug-input { padding: 5px; width: 60px; background: #000; color: #fff; border: 1px solid #555; }
+
+    .pop-text { position: absolute; font-size: 24px; font-weight: bold; animation: floatUp 1s forwards; z-index: 200; text-shadow: 2px 2px 0 #000; }
+    @keyframes floatUp { to { transform: translateY(-50px); opacity: 0; } }
+    .shake { animation: shake 0.4s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+    .attack-anim { animation: lunge 0.3s; }
+    @keyframes lunge { 0%{transform:translate(0,0)} 50%{transform:translate(40px, -20px) scale(1.2)} 100%{transform:translate(0,0)} }
+    .damage-anim { animation: flashRed 0.3s; }
+    @keyframes flashRed { 0%,100%{filter:none} 50%{filter:sepia(1) hue-rotate(-50deg) saturate(3)} }
+    @keyframes deathSpin { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 100% { transform: scale(0) rotate(720deg); opacity: 0; } }
+    .enemy-death { animation: deathSpin 1.5s forwards; }
+    .confetti { position: absolute; width: 10px; height: 10px; animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+</style>
+</head>
+<body>
+
+<div id="error-box"></div>
+<script>
+    window.onerror = function(msg, url, line) {
+        document.getElementById('error-box').style.display = 'block';
+        document.getElementById('error-box').innerHTML += "⚠️ ERROR: " + msg + "<br>Line: " + line + "<br><br>";
+    };
+</script>
+
+<div id="app">
+    <div id="screen-title" class="screen active center">
+        <h1 onclick="Debug.trigger()">WORD QUEST<br><span style="font-size:0.6em;color:#fff;">GRADE 1</span></h1>
+        <p style="color:#aaa;">Complete Edition (v15)</p>
+        <button id="btn-start" class="btn start-btn">START</button>
+    </div>
+
+    <div id="screen-map" class="screen">
+        <div class="top-bar">
+            <div>
+                <div id="map-title">NOVICE</div>
+                <div class="status-text" style="font-size:12px; color:#aaa;">Lv.<span id="map-lv">1</span></div>
+            </div>
+            <div>💰 <span id="map-gold">0</span></div>
+        </div>
+        <div id="map-grid" class="grid-container"></div>
+        <div class="bottom-bar">
+            <button id="btn-shop" class="btn">SHOP</button>
+            <button id="btn-titles" class="btn">TITLES</button>
+            <button id="btn-title-back" class="btn">TITLE</button>
+        </div>
+    </div>
+
+    <div id="screen-shop" class="screen">
+        <h2>ITEM SHOP</h2>
+        <div style="text-align:center;margin-bottom:10px;">Gold: <span id="shop-gold" style="color:#ffd700">0</span></div>
+        <div id="shop-container" class="grid-container" style="justify-content:center;"></div>
+        <div class="bottom-bar"><button id="btn-shop-back" class="btn">BACK</button></div>
+    </div>
+
+    <div id="screen-battle" class="screen">
+        <div id="battle-hud">
+            <div>Lv.<span id="hud-lv">1</span> <span style="font-size:12px">HP <span id="hp-text">100</span></span></div>
+            <div class="bar-frame"><div id="hp-bar" class="bar-fill hp-color"></div></div>
+            <div style="margin-left:10px;">VS</div>
+            <div class="bar-frame"><div id="enemy-hp-bar" class="bar-fill enemy-color"></div></div>
+        </div>
+        <div id="battle-field">
+            <div style="text-align:center;"><div class="sprite" id="hero-sprite">⚔️</div><div id="active-buffs" style="height:20px;"></div></div>
+            <div style="text-align:center;"><div class="sprite" id="enemy-sprite">👾</div></div>
+        </div>
+        <div id="panel-command" class="panel">
+            <div id="cmd-grid">
+                <button id="btn-atk" class="cmd-btn">⚔️ ATTACK<br><span style="font-size:10px;">Choice</span></button>
+                <button id="btn-mag" class="cmd-btn">🔥 MAGIC<br><span style="font-size:10px;">Writing</span></button>
+                <button id="btn-item" class="cmd-btn">🎒 ITEM</button>
+                <button id="btn-flee" class="cmd-btn">🏃 FLEE</button>
+            </div>
+        </div>
+        <div id="panel-question" class="panel hidden">
+            <div style="display:flex;justify-content:space-between;">
+                <span style="color:#ffd700;">QUIZ</span>
+                <button id="btn-cancel" class="btn small">CANCEL</button>
+            </div>
+            <div id="q-text"></div>
+            <div id="choice-grid"></div>
+            <div id="write-area" class="hidden">
+                <input type="text" id="write-input" autocomplete="off">
+                <button id="btn-submit" class="btn">ATTACK</button>
+            </div>
+        </div>
+        <div id="defense-panel" class="overlay hidden">
+            <h2>DEFEND!</h2>
+            <div class="timer-bar"><div id="def-timer-fill"></div></div>
+            <div id="def-word"></div>
+            <div id="def-meaning"></div>
+            <div style="color:#ccc;">Type to Block!</div>
+        </div>
+        <div id="feedback-overlay" class="overlay hidden">
+            <h2 class="danger-text">WRONG!</h2>
+            <div style="color:#ddd;">Answer:</div>
+            <div id="fb-correct-ans"></div>
+            <div id="btn-fb-ok" class="btn">NEXT</div>
+        </div>
+        <div id="item-overlay" class="overlay hidden">
+            <h2>ITEMS</h2><div id="item-list" class="grid-2col" style="gap:10px;"></div><button id="btn-close-item" class="btn">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="title-overlay" class="overlay hidden"><h2>TITLES</h2><div id="title-list"></div><button id="btn-close-title" class="btn">CLOSE</button></div>
+
+    <div id="debug-overlay" class="overlay hidden">
+        <h2 style="color:#d580ff">DEBUG</h2>
+        <div class="debug-row">Lv: <input type="number" id="debug-lv" value="1" class="debug-input"> <button id="btn-debug-setlv" class="btn small">SET</button></div>
+        <div class="debug-row">Gold: <input type="number" id="debug-gold" value="1000" class="debug-input"> <button id="btn-debug-setgold" class="btn small">SET</button></div>
+        <button id="btn-debug-unlock" class="btn">UNLOCK TITLES</button>
+        <button id="btn-debug-restore" class="btn">RESTORE HP</button>
+        <button id="btn-close-debug" class="btn">CLOSE</button>
+    </div>
+
+    <div id="screen-result" class="screen center">
+        <div id="confetti-container"></div>
+        <h1 style="color:#0f0;">VICTORY!</h1>
+        <div style="font-size:80px;margin:20px;">🏆</div>
+        <div>Exp +<span id="res-exp"></span> / Gold +<span id="res-gold"></span></div>
+        <div id="levelup-msg" style="color:var(--acc);margin-top:10px;white-space:pre;"></div>
+        <button id="btn-next" class="btn start-btn">NEXT</button>
+    </div>
+    
+    <div id="debug-btn" onclick="UI.toggleDebug()">🐞</div>
+</div>
+
+<script>
+// --- GLOBAL DATA ---
+const Game = {};
+const Battle = {};
+const UI = {};
+const Debug = {};
+
+const UNITS = ["0","1","2","3","4","5","6","7","8","9","10","WR","LR","Ex"];
+const SHOP_ITEMS = [
+    {id:'potion', name:'Potion', icon:'🍷', cost:50, desc:"Heal 50 HP"},
+    {id:'bomb', name:'Bomb', icon:'💣', cost:80, desc:"Next Quiz: 2 Choices"},
+    {id:'power', name:'Power', icon:'⚔️', cost:150, desc:"Atk UP (until miss)"},
+    {id:'iron_shield', name:'Shield', icon:'🛡️', cost:150, desc:"Auto Block (1 time)"},
+    {id:'wisdom', name:'Wisdom', icon:'📜', cost:200, desc:"Exp x2 (1 Battle)"},
+    {id:'wealth', name:'Wealth', icon:'💰', cost:200, desc:"Gold x2 (1 Battle)"},
+    {id:'crit_gem', name:'Crit Gem', icon:'💎', cost:300, desc:"Next Hit: Critical"},
+    {id:'vampire', name:'Fang', icon:'🦇', cost:350, desc:"Drain HP (1 hit)"},
+    {id:'hi_potion', name:'Hi-Potion', icon:'🍷+', cost:120, desc:"Heal 150 HP"},
+    {id:'elixir', name:'Elixir', icon:'🧪', cost:200, desc:"Full Heal"}
+];
+const DB = [
+{u:"0",e:"nice",j:"すてきな"},{u:"0",e:"meet",j:"会う"},{u:"0",e:"you",j:"あなた"},{u:"0",e:"good",j:"よい"},{u:"0",e:"morning",j:"朝"},{u:"0",e:"I",j:"私"},{u:"0",e:"am",j:"…です"},{u:"0",e:"call",j:"呼ぶ"},{u:"0",e:"me",j:"私を"},{u:"0",e:"please",j:"お願いします"},{u:"0",e:"oh",j:"あら"},{u:"0",e:"are",j:"…です"},{u:"0",e:"yes",j:"はい"},{u:"0",e:"no",j:"いいえ"},{u:"0",e:"not",j:"…でない"},{u:"0",e:"so",j:"それで"},{u:"0",e:"tennis",j:"テニス"},{u:"0",e:"fan",j:"ファン"},{u:"0",e:"sport",j:"スポーツ"},
+{u:"1",e:"hello",j:"こんにちは"},{u:"1",e:"everyone",j:"みんな"},{u:"1",e:"like",j:"好き"},{u:"1",e:"do",j:"［疑問文］"},{u:"1",e:"play",j:"遊ぶ"},{u:"1",e:"soccer",j:"サッカー"},{u:"1",e:"that",j:"あれ"},{u:"1",e:"is",j:"…です"},{u:"1",e:"pen",j:"ペン"},{u:"1",e:"apple",j:"リンゴ"},{u:"1",e:"have",j:"持っている"},{u:"1",e:"question",j:"質問"},{u:"1",e:"number",j:"数"},{u:"1",e:"read",j:"読む"},{u:"1",e:"math",j:"数学"},{u:"1",e:"answer",j:"答え"},{u:"1",e:"study",j:"勉強する"},{u:"1",e:"every",j:"毎…"},{u:"1",e:"day",j:"日"},{u:"1",e:"music",j:"音楽"},
+{u:"2",e:"teacher",j:"先生"},{u:"2",e:"Ms.",j:"…さん"},{u:"2",e:"Mr.",j:"…さん"},{u:"2",e:"club",j:"クラブ"},{u:"2",e:"she",j:"彼女"},{u:"2",e:"he",j:"彼"},{u:"2",e:"friend",j:"友達"},{u:"2",e:"picture",j:"写真"},{u:"2",e:"this",j:"これ"},{u:"2",e:"who",j:"だれ"},{u:"2",e:"know",j:"知っている"},{u:"2",e:"it",j:"それ"},{u:"2",e:"food",j:"食べ物"},{u:"2",e:"right",j:"正しい"},{u:"2",e:"often",j:"よく"},{u:"2",e:"very",j:"とても"},{u:"2",e:"much",j:"たくさん"},{u:"2",e:"sometimes",j:"ときどき"},{u:"2",e:"see",j:"見る"},{u:"2",e:"but",j:"しかし"},{u:"2",e:"usually",j:"たいてい"},{u:"2",e:"how",j:"どう"},
+{u:"3",e:"cook",j:"料理する"},{u:"3",e:"breakfast",j:"朝食"},{u:"3",e:"always",j:"いつも"},{u:"3",e:"toast",j:"トースト"},{u:"3",e:"fruit",j:"果物"},{u:"3",e:"yogurt",j:"ヨーグルト"},{u:"3",e:"milk",j:"牛乳"},{u:"3",e:"eat",j:"食べる"},{u:"3",e:"rice",j:"米"},{u:"3",e:"soup",j:"スープ"},{u:"3",e:"hungry",j:"空腹"},{u:"3",e:"what",j:"何"},{u:"3",e:"can",j:"できる"},{u:"3",e:"noodle",j:"麺"},{u:"3",e:"many",j:"たくさんの"},{u:"3",e:"word",j:"単語"},{u:"3",e:"we",j:"私たち"},{u:"3",e:"use",j:"使う"},
+{u:"4",e:"gym",j:"体育館"},{u:"4",e:"near",j:"近くに"},{u:"4",e:"house",j:"家"},{u:"4",e:"where",j:"どこ"},{u:"4",e:"live",j:"住む"},{u:"4",e:"station",j:"駅"},{u:"4",e:"park",j:"公園"},{u:"4",e:"come",j:"来る"},{u:"4",e:"cool",j:"かっこいい"},{u:"4",e:"nice",j:"優しい"},{u:"4",e:"child",j:"子供"},{u:"4",e:"these",j:"これら"},{u:"4",e:"they",j:"彼ら"},{u:"4",e:"my",j:"私の"},{u:"4",e:"parent",j:"親"},{u:"4",e:"welcome",j:"ようこそ"},{u:"4",e:"here",j:"ここ"},{u:"4",e:"busy",j:"忙しい"},{u:"4",e:"our",j:"私たちの"},{u:"4",e:"bag",j:"かばん"},{u:"4",e:"dad",j:"父"},{u:"4",e:"table",j:"テーブル"},{u:"4",e:"look",j:"見る"},{u:"4",e:"man",j:"男性"},{u:"4",e:"door",j:"ドア"},{u:"4",e:"grandpa",j:"祖父"},{u:"4",e:"girl",j:"女の子"},{u:"4",e:"woman",j:"女性"},{u:"4",e:"bench",j:"ベンチ"},{u:"4",e:"bookstore",j:"本屋"},{u:"4",e:"street",j:"通り"},{u:"4",e:"hospital",j:"病院"},{u:"4",e:"perfect",j:"完璧な"},{u:"4",e:"gift",j:"贈り物"},{u:"4",e:"birthday",j:"誕生日"},
+{u:"5",e:"shirt",j:"シャツ"},{u:"5",e:"design",j:"デザイン"},{u:"5",e:"animal",j:"動物"},{u:"5",e:"kind",j:"種類"},{u:"5",e:"buy",j:"買う"},{u:"5",e:"want",j:"ほしい"},{u:"5",e:"black",j:"黒"},{u:"5",e:"which",j:"どちら"},{u:"5",e:"or",j:"または"},{u:"5",e:"blue",j:"青"},{u:"5",e:"cute",j:"かわいい"},{u:"5",e:"how",j:"どれくらい"},{u:"5",e:"much",j:"いくら"},{u:"5",e:"dollar",j:"ドル"},{u:"5",e:"great",j:"すごい"},{u:"5",e:"take",j:"取る"},{u:"5",e:"really",j:"本当に"},{u:"5",e:"festival",j:"祭り"},{u:"5",e:"when",j:"いつ"},{u:"5",e:"Sunday",j:"日曜日"},{u:"5",e:"free",j:"暇な"},{u:"5",e:"then",j:"それなら"},{u:"5",e:"let's",j:"…しよう"},{u:"5",e:"go",j:"行く"},{u:"5",e:"together",j:"一緒に"},{u:"5",e:"calendar",j:"カレンダー"},{u:"5",e:"January",j:"1月"},{u:"5",e:"February",j:"2月"},{u:"5",e:"March",j:"3月"},{u:"5",e:"April",j:"4月"},{u:"5",e:"May",j:"5月"},{u:"5",e:"June",j:"6月"},{u:"5",e:"July",j:"7月"},{u:"5",e:"August",j:"8月"},{u:"5",e:"September",j:"9月"},{u:"5",e:"October",j:"10月"},{u:"5",e:"November",j:"11月"},{u:"5",e:"December",j:"12月"},{u:"5",e:"holiday",j:"休日"},{u:"5",e:"mid-",j:"中ごろの"},{u:"5",e:"summer",j:"夏"},{u:"5",e:"vacation",j:"休暇"},{u:"5",e:"party",j:"パーティー"},{u:"5",e:"start",j:"始まる"},{u:"5",e:"o'clock",j:"…時"},
+{u:"6",e:"whose",j:"だれの"},{u:"6",e:"shoe",j:"靴"},{u:"6",e:"hey",j:"やあ"},{u:"6",e:"ticket",j:"チケット"},{u:"6",e:"yours",j:"あなたのもの"},{u:"6",e:"mine",j:"私のもの"},{u:"6",e:"maybe",j:"たぶん"},{u:"6",e:"some",j:"いくつかの"},{u:"6",e:"name",j:"名前"},{u:"6",e:"write",j:"書く"},{u:"6",e:"family",j:"家族"},{u:"6",e:"line",j:"列"},{u:"6",e:"touch",j:"触る"},{u:"6",e:"now",j:"今"},{u:"6",e:"father",j:"父"},{u:"6",e:"student",j:"生徒"},{u:"6",e:"junior",j:"年下の"},{u:"6",e:"high",j:"高い"},{u:"6",e:"school",j:"学校"},{u:"6",e:"year",j:"年"},{u:"6",e:"old",j:"古い"},{u:"6",e:"teach",j:"教える"},{u:"6",e:"little",j:"小さい"},{u:"6",e:"sister",j:"姉妹"},{u:"6",e:"brother",j:"兄弟"},{u:"6",e:"mother",j:"母"},{u:"6",e:"writer",j:"作家"},{u:"6",e:"poem",j:"詩"},{u:"6",e:"long",j:"長い"},{u:"6",e:"life",j:"人生"},{u:"6",e:"nature",j:"自然"},{u:"6",e:"speak",j:"話す"},{u:"6",e:"famous",j:"有名な"},{u:"6",e:"story",j:"物語"},{u:"6",e:"English",j:"英語"},{u:"6",e:"language",j:"言語"},{u:"6",e:"people",j:"人々"},{u:"6",e:"around",j:"周りに"},{u:"6",e:"world",j:"世界"},
+{u:"7",e:"enjoy",j:"楽しむ"},{u:"7",e:"listen",j:"聞く"},{u:"7",e:"well",j:"上手に"},{u:"7",e:"cannot",j:"できない"},{u:"7",e:"fast",j:"速く"},{u:"7",e:"swim",j:"泳ぐ"},{u:"7",e:"act",j:"演じる"},{u:"7",e:"hard",j:"一生懸命"},{u:"7",e:"fan",j:"うちわ"},{u:"7",e:"Japanese",j:"日本の"},{u:"7",e:"traditional",j:"伝統的な"},{u:"7",e:"comic",j:"喜劇の"},{u:"7",e:"storytelling",j:"話芸"},{u:"7",e:"stage",j:"舞台"},{u:"7",e:"cushion",j:"座布団"},{u:"7",e:"prop",j:"小道具"},{u:"7",e:"role",j:"役"},{u:"7",e:"only",j:"だけ"},{u:"7",e:"towel",j:"タオル"},{u:"7",e:"different",j:"違った"},{u:"7",e:"minute",j:"分"},{u:"7",e:"limit",j:"制限"},
+{u:"8",e:"presentation",j:"発表"},{u:"8",e:"slide",j:"スライド"},{u:"8",e:"give",j:"与える"},{u:"8",e:"class",j:"授業"},{u:"8",e:"surprise",j:"驚かす"},{u:"8",e:"her",j:"彼女を"},{u:"8",e:"send",j:"送る"},{u:"8",e:"card",j:"カード"},{u:"8",e:"look",j:"見る"},{u:"8",e:"any",j:"いくつかの"},{u:"8",e:"flower",j:"花"},{u:"8",e:"mountain",j:"山"},{u:"8",e:"river",j:"川"},{u:"8",e:"lake",j:"湖"},{u:"8",e:"beautiful",j:"美しい"},{u:"8",e:"popular",j:"人気のある"},{u:"8",e:"place",j:"場所"},{u:"8",e:"visit",j:"訪れる"},{u:"8",e:"pencil",j:"鉛筆"},
+{u:"9",e:"yesterday",j:"昨日"},{u:"9",e:"went",j:"行った"},{u:"9",e:"park",j:"駐車する"},{u:"9",e:"ate",j:"食べた"},{u:"9",e:"candy",j:"キャンディ"},{u:"9",e:"end",j:"終わり"},{u:"9",e:"saw",j:"見た"},{u:"9",e:"lot",j:"たくさん"},{u:"9",e:"had",j:"持っていた"},{u:"9",e:"fun",j:"楽しみ"},{u:"9",e:"did",j:"した"},{u:"9",e:"stay",j:"滞在する"},{u:"9",e:"late",j:"遅く"},{u:"9",e:"night",j:"夜"},{u:"9",e:"watch",j:"見る"},{u:"9",e:"TV",j:"テレビ"},{u:"9",e:"homework",j:"宿題"},{u:"9",e:"come",j:"来る"},{u:"9",e:"new",j:"新しい"},{u:"9",e:"shrine",j:"神社"},{u:"9",e:"make",j:"作る"},{u:"9",e:"money",j:"お金"},{u:"9",e:"bag",j:"袋"},{u:"9",e:"luck",j:"運"},
+{u:"10",e:"pizza",j:"ピザ"},{u:"10",e:"video",j:"ビデオ"},{u:"10",e:"game",j:"ゲーム"},{u:"10",e:"scary",j:"怖い"},{u:"10",e:"city",j:"都市"},{u:"10",e:"hot",j:"暑い"},{u:"10",e:"swimming",j:"水泳"},{u:"10",e:"Christmas",j:"クリスマス"},{u:"10",e:"was",j:"…だった"},{u:"10",e:"were",j:"…だった"},{u:"10",e:"home",j:"家"},{u:"10",e:"check",j:"調べる"},{u:"10",e:"later",j:"あとで"},{u:"10",e:"email",j:"メール"},{u:"10",e:"wait",j:"待つ"},{u:"10",e:"drink",j:"飲む"},{u:"10",e:"water",j:"水"},{u:"10",e:"doing",j:"している"},{u:"10",e:"reading",j:"読んでいる"},{u:"10",e:"playing",j:"遊んでいる"},{u:"10",e:"sleeping",j:"寝ている"},{u:"10",e:"eating",j:"食べている"},{u:"10",e:"watching",j:"見ている"},{u:"10",e:"studying",j:"勉強している"},{u:"10",e:"cooking",j:"料理している"},{u:"10",e:"coming",j:"来ている"},{u:"10",e:"using",j:"使っている"},{u:"10",e:"running",j:"走っている"},
+{u:"WR",e:"zoo",j:"動物園"},{u:"WR",e:"piano",j:"ピアノ"},{u:"WR",e:"guitar",j:"ギター"},{u:"WR",e:"notebook",j:"ノート"},{u:"WR",e:"dictionary",j:"辞書"},{u:"WR",e:"clock",j:"時計"},{u:"WR",e:"map",j:"地図"},{u:"WR",e:"computer",j:"PC"},{u:"WR",e:"chair",j:"いす"},{u:"WR",e:"window",j:"窓"},{u:"WR",e:"salad",j:"サラダ"},{u:"WR",e:"sunny",j:"晴れ"},{u:"WR",e:"rainy",j:"雨"},{u:"WR",e:"one",j:"1"},{u:"WR",e:"two",j:"2"},{u:"WR",e:"three",j:"3"},{u:"WR",e:"ten",j:"10"},{u:"WR",e:"hundred",j:"100"},{u:"WR",e:"cat",j:"猫"},{u:"WR",e:"dog",j:"犬"},{u:"WR",e:"bird",j:"鳥"},{u:"WR",e:"Monday",j:"月曜日"},{u:"WR",e:"library",j:"図書館"},{u:"WR",e:"first",j:"1番目"},{u:"WR",e:"second",j:"2番目"},{u:"WR",e:"head",j:"頭"},{u:"WR",e:"hand",j:"手"},{u:"WR",e:"get up",j:"起きる"},{u:"WR",e:"nurse",j:"看護師"},{u:"WR",e:"kitchen",j:"台所"},{u:"WR",e:"science",j:"理科"},{u:"WR",e:"eraser",j:"消しゴム"},{u:"WR",e:"ruler",j:"定規"},{u:"WR",e:"backpack",j:"リュック"},{u:"WR",e:"marker",j:"マーカー"},{u:"WR",e:"blackboard",j:"黒板"},{u:"WR",e:"sofa",j:"ソファー"},{u:"WR",e:"bed",j:"ベッド"},{u:"WR",e:"table",j:"テーブル"},{u:"WR",e:"door",j:"ドア"},{u:"WR",e:"bath",j:"お風呂"},{u:"WR",e:"living room",j:"リビング"},{u:"WR",e:"bedroom",j:"寝室"},{u:"WR",e:"garden",j:"庭"},{u:"WR",e:"stairs",j:"階段"},{u:"WR",e:"wall",j:"壁"},{u:"WR",e:"ceiling",j:"天井"},{u:"WR",e:"floor",j:"床"},{u:"WR",e:"roof",j:"屋根"},{u:"WR",e:"flower",j:"花"},{u:"WR",e:"tree",j:"木"},{u:"WR",e:"grass",j:"草"},{u:"WR",e:"sun",j:"太陽"},{u:"WR",e:"moon",j:"月"},{u:"WR",e:"star",j:"星"},{u:"WR",e:"cloud",j:"雲"},{u:"WR",e:"wind",j:"風"},{u:"WR",e:"snow",j:"雪"},{u:"WR",e:"river",j:"川"},{u:"WR",e:"sea",j:"海"},{u:"WR",e:"mountain",j:"山"},{u:"WR",e:"lake",j:"湖"},{u:"WR",e:"forest",j:"森"},{u:"WR",e:"park",j:"公園"},{u:"WR",e:"station",j:"駅"},{u:"WR",e:"airport",j:"空港"},{u:"WR",e:"port",j:"港"},{u:"WR",e:"hospital",j:"病院"},{u:"WR",e:"bank",j:"銀行"},{u:"WR",e:"post office",j:"郵便局"},{u:"WR",e:"supermarket",j:"スーパー"},{u:"WR",e:"convenience store",j:"コンビニ"},{u:"WR",e:"restaurant",j:"レストラン"},{u:"WR",e:"museum",j:"博物館"},{u:"WR",e:"hotel",j:"ホテル"},{u:"WR",e:"police station",j:"警察署"},{u:"WR",e:"fire station",j:"消防署"},{u:"WR",e:"temple",j:"寺"},{u:"WR",e:"shrine",j:"神社"},{u:"WR",e:"castle",j:"城"},{u:"WR",e:"church",j:"教会"},{u:"WR",e:"gym",j:"体育館"},{u:"WR",e:"pool",j:"プール"},{u:"WR",e:"stadium",j:"競技場"},{u:"WR",e:"soccer",j:"サッカー"},{u:"WR",e:"baseball",j:"野球"},{u:"WR",e:"basketball",j:"バスケ"},{u:"WR",e:"volleyball",j:"バレー"},{u:"WR",e:"tennis",j:"テニス"},{u:"WR",e:"badminton",j:"バドミントン"},{u:"WR",e:"swimming",j:"水泳"},{u:"WR",e:"dance",j:"ダンス"},{u:"WR",e:"running",j:"ランニング"},{u:"WR",e:"skiing",j:"スキー"},{u:"WR",e:"skating",j:"スケート"},{u:"WR",e:"judo",j:"柔道"},{u:"WR",e:"kendo",j:"剣道"},{u:"WR",e:"music",j:"音楽"},{u:"WR",e:"art",j:"美術"},{u:"WR",e:"drama",j:"演劇"},{u:"WR",e:"red",j:"赤"},{u:"WR",e:"blue",j:"青"},{u:"WR",e:"green",j:"緑"},{u:"WR",e:"yellow",j:"黄色"},{u:"WR",e:"black",j:"黒"},{u:"WR",e:"white",j:"白"},{u:"WR",e:"orange",j:"オレンジ色"},{u:"WR",e:"purple",j:"紫"},{u:"WR",e:"pink",j:"ピンク"},{u:"WR",e:"brown",j:"茶色"},{u:"WR",e:"gray",j:"灰色"},{u:"WR",e:"gold",j:"金"},{u:"WR",e:"silver",j:"銀"},{u:"WR",e:"Sunday",j:"日曜日"},{u:"WR",e:"Tuesday",j:"火曜日"},{u:"WR",e:"Wednesday",j:"水曜日"},{u:"WR",e:"Thursday",j:"木曜日"},{u:"WR",e:"Friday",j:"金曜日"},{u:"WR",e:"Saturday",j:"土曜日"},{u:"WR",e:"January",j:"1月"},{u:"WR",e:"February",j:"2月"},{u:"WR",e:"March",j:"3月"},{u:"WR",e:"April",j:"4月"},{u:"WR",e:"May",j:"5月"},{u:"WR",e:"June",j:"6月"},{u:"WR",e:"July",j:"7月"},{u:"WR",e:"August",j:"8月"},{u:"WR",e:"September",j:"9月"},{u:"WR",e:"October",j:"10月"},{u:"WR",e:"November",j:"11月"},{u:"WR",e:"December",j:"12月"},{u:"WR",e:"spring",j:"春"},{u:"WR",e:"summer",j:"夏"},{u:"WR",e:"autumn",j:"秋"},{u:"WR",e:"winter",j:"冬"},{u:"WR",e:"morning",j:"朝"},{u:"WR",e:"afternoon",j:"午後"},{u:"WR",e:"evening",j:"夕方"},{u:"WR",e:"night",j:"夜"},{u:"WR",e:"today",j:"今日"},{u:"WR",e:"tomorrow",j:"明日"},{u:"WR",e:"yesterday",j:"昨日"},{u:"WR",e:"hair",j:"髪"},{u:"WR",e:"face",j:"顔"},{u:"WR",e:"eye",j:"目"},{u:"WR",e:"ear",j:"耳"},{u:"WR",e:"nose",j:"鼻"},{u:"WR",e:"mouth",j:"口"},{u:"WR",e:"tooth",j:"歯"},{u:"WR",e:"neck",j:"首"},{u:"WR",e:"shoulder",j:"肩"},{u:"WR",e:"arm",j:"腕"},{u:"WR",e:"finger",j:"指"},{u:"WR",e:"leg",j:"脚"},{u:"WR",e:"foot",j:"足"},{u:"WR",e:"body",j:"体"},{u:"WR",e:"heart",j:"心"},{u:"WR",e:"mother",j:"母"},{u:"WR",e:"father",j:"父"},{u:"WR",e:"sister",j:"姉妹"},{u:"WR",e:"brother",j:"兄弟"},{u:"WR",e:"grandmother",j:"祖母"},{u:"WR",e:"grandfather",j:"祖父"},{u:"WR",e:"aunt",j:"おば"},{u:"WR",e:"uncle",j:"おじ"},{u:"WR",e:"cousin",j:"いとこ"},{u:"WR",e:"friend",j:"友達"},{u:"WR",e:"teacher",j:"先生"},{u:"WR",e:"student",j:"生徒"},{u:"WR",e:"doctor",j:"医者"},{u:"WR",e:"police officer",j:"警察官"},{u:"WR",e:"firefighter",j:"消防士"},{u:"WR",e:"baker",j:"パン屋"},{u:"WR",e:"florist",j:"花屋"},{u:"WR",e:"driver",j:"運転手"},{u:"WR",e:"singer",j:"歌手"},{u:"WR",e:"artist",j:"芸術家"},{u:"WR",e:"writer",j:"作家"},{u:"WR",e:"player",j:"選手"},{u:"WR",e:"rabbit",j:"ウサギ"},{u:"WR",e:"mouse",j:"ネズミ"},{u:"WR",e:"cow",j:"牛"},{u:"WR",e:"horse",j:"馬"},{u:"WR",e:"sheep",j:"羊"},{u:"WR",e:"pig",j:"豚"},{u:"WR",e:"chicken",j:"鶏"},{u:"WR",e:"lion",j:"ライオン"},{u:"WR",e:"tiger",j:"トラ"},{u:"WR",e:"elephant",j:"ゾウ"},{u:"WR",e:"monkey",j:"サル"},{u:"WR",e:"bear",j:"クマ"},{u:"WR",e:"panda",j:"パンダ"},{u:"WR",e:"koala",j:"コアラ"},{u:"WR",e:"snake",j:"ヘビ"},{u:"WR",e:"fish",j:"魚"},{u:"WR",e:"insect",j:"昆虫"},{u:"WR",e:"bread",j:"パン"},{u:"WR",e:"rice",j:"ご飯"},{u:"WR",e:"noodle",j:"麺"},{u:"WR",e:"egg",j:"卵"},{u:"WR",e:"meat",j:"肉"},{u:"WR",e:"vegetable",j:"野菜"},{u:"WR",e:"fruit",j:"果物"},{u:"WR",e:"apple",j:"リンゴ"},{u:"WR",e:"banana",j:"バナナ"},{u:"WR",e:"orange",j:"オレンジ"},{u:"WR",e:"grape",j:"ブドウ"},{u:"WR",e:"strawberry",j:"イチゴ"},{u:"WR",e:"melon",j:"メロン"},{u:"WR",e:"tomato",j:"トマト"},{u:"WR",e:"potato",j:"ジャガイモ"},{u:"WR",e:"carrot",j:"ニンジン"},{u:"WR",e:"onion",j:"タマネギ"},{u:"WR",e:"corn",j:"トウモロコシ"},{u:"WR",e:"milk",j:"牛乳"},{u:"WR",e:"juice",j:"ジュース"},{u:"WR",e:"tea",j:"お茶"},{u:"WR",e:"coffee",j:"コーヒー"},{u:"WR",e:"cake",j:"ケーキ"},{u:"WR",e:"ice cream",j:"アイスクリーム"},{u:"WR",e:"chocolate",j:"チョコレート"},{u:"WR",e:"cookie",j:"クッキー"},{u:"WR",e:"sandwich",j:"サンドイッチ"},{u:"WR",e:"hamburger",j:"ハンバーガー"},{u:"WR",e:"pizza",j:"ピザ"},{u:"WR",e:"curry",j:"カレー"},{u:"WR",e:"steak",j:"ステーキ"},{u:"WR",e:"sushi",j:"寿司"},{u:"WR",e:"tempura",j:"天ぷら"},{u:"WR",e:"car",j:"車"},{u:"WR",e:"bus",j:"バス"},{u:"WR",e:"train",j:"電車"},{u:"WR",e:"bike",j:"自転車"},{u:"WR",e:"taxi",j:"タクシー"},{u:"WR",e:"plane",j:"飛行機"},{u:"WR",e:"ship",j:"船"},{u:"WR",e:"boat",j:"ボート"},{u:"WR",e:"four",j:"4"},{u:"WR",e:"five",j:"5"},{u:"WR",e:"six",j:"6"},{u:"WR",e:"seven",j:"7"},{u:"WR",e:"eight",j:"8"},{u:"WR",e:"nine",j:"9"},{u:"WR",e:"eleven",j:"11"},{u:"WR",e:"twelve",j:"12"},{u:"WR",e:"twenty",j:"20"},{u:"WR",e:"thirty",j:"30"},{u:"WR",e:"forty",j:"40"},{u:"WR",e:"fifty",j:"50"},{u:"WR",e:"sixty",j:"60"},{u:"WR",e:"seventy",j:"70"},{u:"WR",e:"eighty",j:"80"},{u:"WR",e:"ninety",j:"90"},{u:"WR",e:"thousand",j:"1000"},{u:"WR",e:"Japan",j:"日本"},{u:"WR",e:"America",j:"アメリカ"},{u:"WR",e:"Canada",j:"カナダ"},{u:"WR",e:"Australia",j:"オーストラリア"},{u:"WR",e:"China",j:"中国"},{u:"WR",e:"Korea",j:"韓国"},{u:"WR",e:"India",j:"インド"},{u:"WR",e:"UK",j:"イギリス"},{u:"WR",e:"France",j:"フランス"},{u:"WR",e:"Germany",j:"ドイツ"},{u:"WR",e:"Italy",j:"イタリア"},{u:"WR",e:"Spain",j:"スペイン"},{u:"WR",e:"Brazil",j:"ブラジル"},{u:"WR",e:"Russia",j:"ロシア"},{u:"WR",e:"Egypt",j:"エジプト"},
+{u:"LR",e:"history",j:"歴史"},{u:"LR",e:"museum",j:"博物館"},{u:"LR",e:"interesting",j:"おもしろい"},{u:"LR",e:"grandfather",j:"祖父"},{u:"LR",e:"art",j:"芸術"},{u:"LR",e:"excited",j:"興奮した"},{u:"LR",e:"say",j:"言う"},{u:"LR",e:"think",j:"思う"},{u:"LR",e:"find",j:"見つける"},{u:"LR",e:"clock",j:"時計"},{u:"LR",e:"London",j:"ロンドン"},{u:"LR",e:"ago",j:"前"},{u:"LR",e:"culture",j:"文化"},{u:"LR",e:"Europe",j:"ヨーロッパ"},{u:"LR",e:"word",j:"言葉"},{u:"LR",e:"mean",j:"意味する"},{u:"LR",e:"right",j:"右"},{u:"LR",e:"back",j:"戻る"},{u:"LR",e:"ghost",j:"幽霊"},{u:"LR",e:"scary",j:"怖い"},{u:"LR",e:"character",j:"キャラクター"},{u:"LR",e:"present",j:"プレゼント"},{u:"LR",e:"rich",j:"金持ち"},{u:"LR",e:"money",j:"金"},{u:"LR",e:"poor",j:"貧しい"},{u:"LR",e:"life",j:"生活"},{u:"LR",e:"work",j:"働く"},{u:"LR",e:"change",j:"変える"},{u:"LR",e:"future",j:"未来"},{u:"LR",e:"kind",j:"親切な"},
+{u:"Ex",e:"shrine",j:"神社"},{u:"Ex",e:"tree",j:"木"},{u:"Ex",e:"sea",j:"海"},{u:"Ex",e:"big",j:"大きい"},{u:"Ex",e:"mountain",j:"山"},{u:"Ex",e:"long",j:"長い"},{u:"Ex",e:"small",j:"小さい"},{u:"Ex",e:"box",j:"箱"},{u:"Ex",e:"dog",j:"犬"},{u:"Ex",e:"ball",j:"ボール"},{u:"Ex",e:"desk",j:"机"},{u:"Ex",e:"cat",j:"猫"},{u:"Ex",e:"bed",j:"ベッド"},{u:"Ex",e:"bird",j:"鳥"},{u:"Ex",e:"book",j:"本"},{u:"Ex",e:"old",j:"古い"},{u:"Ex",e:"chair",j:"いす"},{u:"Ex",e:"cup",j:"カップ"},{u:"Ex",e:"look",j:"見る"},{u:"Ex",e:"new",j:"新しい"}
+];
+
+let Player = {
+    hp:100, maxHp:100, gold:0, lv:1, exp:0, nextExp:100,
+    items: { potion:1, power:1, bomb:1 },
+    equippedTitle: 0, unlockedTitles: [0],
+    stats: { totalGold:0, items:0, correct:0, noDamageCount:0, unitPerfect:{} },
+    getTitleName: function() {
+        for(let i=0; i<TITLE_DB.length; i++) {
+            if(TITLE_DB[i].id === this.equippedTitle) return TITLE_DB[i].name;
+        }
+        return "Unknown";
+    }
+};
+
+const TITLE_DB = [
+    {id:0, name:"Beginner", desc:"Welcome", cond:true},
+    {id:1, name:"Novice", desc:"Lv 5", cond:function(h){return h.lv>=5}},
+    {id:2, name:"Apprentice", desc:"Lv 10", cond:function(h){return h.lv>=10}},
+    {id:3, name:"Soldier", desc:"Lv 20", cond:function(h){return h.lv>=20}},
+    {id:4, name:"Veteran", desc:"Lv 30", cond:function(h){return h.lv>=30}},
+    {id:5, name:"Master", desc:"Lv 50", cond:function(h){return h.lv>=50}},
+    {id:6, name:"Legend", desc:"Lv 99", cond:function(h){return h.lv>=99}},
+    {id:10, name:"Rich", desc:"1000 G", cond:function(h){return h.gold>=1000}},
+    {id:11, name:"Millionaire", desc:"5000 G", cond:function(h){return h.stats.totalGold>=5000}},
+    {id:12, name:"Shopper", desc:"Buy 10 Items", cond:function(h){return h.stats.items>=10}},
+    {id:13, name:"Iron Wall", desc:"Block 50 times", cond:function(h){return h.stats.blocks>=50}},
+    {id:14, name:"Scholar", desc:"100 Correct", cond:function(h){return h.stats.correct>=100}},
+    {id:20, name:"Untouchable", desc:"No Dmg Win", cond:function(h){return h.stats.noDamageCount>=1}},
+    {id:30, name:"Unit 0 Master", desc:"U0 No Dmg", cond:function(h){return h.stats.unitPerfect['0']}},
+    {id:31, name:"Unit 1 Master", desc:"U1 No Dmg", cond:function(h){return h.stats.unitPerfect['1']}},
+    {id:32, name:"Unit 2 Master", desc:"U2 No Dmg", cond:function(h){return h.stats.unitPerfect['2']}},
+    {id:33, name:"Unit 3 Master", desc:"U3 No Dmg", cond:function(h){return h.stats.unitPerfect['3']}},
+    {id:34, name:"Unit 4 Master", desc:"U4 No Dmg", cond:function(h){return h.stats.unitPerfect['4']}},
+    {id:35, name:"Unit 5 Master", desc:"U5 No Dmg", cond:function(h){return h.stats.unitPerfect['5']}},
+    {id:36, name:"Unit 6 Master", desc:"U6 No Dmg", cond:function(h){return h.stats.unitPerfect['6']}},
+    {id:37, name:"Unit 7 Master", desc:"U7 No Dmg", cond:function(h){return h.stats.unitPerfect['7']}},
+    {id:38, name:"Unit 8 Master", desc:"U8 No Dmg", cond:function(h){return h.stats.unitPerfect['8']}},
+    {id:39, name:"Unit 9 Master", desc:"U9 No Dmg", cond:function(h){return h.stats.unitPerfect['9']}},
+    {id:40, name:"Unit 10 Master", desc:"U10 No Dmg", cond:function(h){return h.stats.unitPerfect['10']}},
+    {id:41, name:"Word Master", desc:"WR No Dmg", cond:function(h){return h.stats.unitPerfect['WR']}},
+    {id:99, name:"Cheater", desc:"Debug Mode", cond:function(h){return h.unlockedTitles.includes(99)}}
+];
+
+// --- HELPER ---
+function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
+function getUnitIndex(u) {
+    return UNITS.indexOf(u);
+}
+
+// --- UI METHODS ---
+UI.show = function(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id === 'screen-map') Game.updateMap();
+    if(id === 'screen-shop') Game.updateShopUI();
+    if(id === 'screen-result') UI.confetti();
+};
+UI.hideOverlay = function(id) { document.getElementById(id).classList.add('hidden'); };
+UI.showOverlay = function(id) { document.getElementById(id).classList.remove('hidden'); };
+UI.showPanel = function(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+};
+UI.toggleDebug = function() { document.getElementById('debug-overlay').classList.toggle('hidden'); };
+UI.popup = function(txt, col='#fff') {
+    const d = document.createElement('div');
+    d.className = 'pop-text';
+    d.innerText = txt;
+    d.style.color = col;
+    d.style.left = '50%';
+    d.style.top = '30%';
+    document.getElementById('screen-battle').appendChild(d);
+    setTimeout(() => d.remove(), 1000);
+};
+UI.confetti = function() {
+    const c = document.getElementById('confetti-container');
+    c.innerHTML = '';
+    for(let i=0; i<30; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti';
+        p.style.left = Math.random()*100+'%';
+        p.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
+        p.style.animationDuration = (1+Math.random()*2)+'s';
+        c.appendChild(p);
+    }
+};
+UI.setText = function(id, text) {
+    const el = document.getElementById(id);
+    if(el) el.innerText = text;
+};
+
+// --- GAME METHODS ---
+Game.start = function() { UI.show('screen-map'); };
+Game.renderMap = function() {
+    const g = document.getElementById('map-grid'); g.innerHTML = "";
+    UNITS.forEach(u => {
+        const d = document.createElement('div'); d.className = 'card';
+        let txt = u==="WR"?"Word Room":(u==="LR"?"Let's Read": (u==="Ex"?"Extra":"Unit "+u));
+        d.innerHTML = `<div style="color:var(--acc);font-weight:bold;">${txt}</div>`;
+        d.onclick = () => Battle.init(u);
+        g.appendChild(d);
+    });
+};
+Game.updateMap = function() {
+    UI.setText('map-gold', Player.gold);
+    UI.setText('map-lv', Player.lv);
+    UI.setText('map-title', Player.getTitleName());
+};
+Game.updateShopUI = function() {
+    UI.setText('shop-gold', Player.gold);
+};
+Game.checkTitles = function() {
+    TITLE_DB.forEach(t => {
+        let conditionMet = (typeof t.cond === 'function') ? t.cond(Player) : t.cond;
+        if(conditionMet && !Player.unlockedTitles.includes(t.id)) {
+            Player.unlockedTitles.push(t.id);
+        }
+    });
+};
+Game.openTitles = function() {
+    Game.checkTitles();
+    const l = document.getElementById('title-list'); l.innerHTML = "";
+    TITLE_DB.forEach(t => {
+        let conditionMet = (typeof t.cond === 'function') ? t.cond(Player) : t.cond;
+        if(conditionMet && !Player.unlockedTitles.includes(t.id)) Player.unlockedTitles.push(t.id);
+        
+        const unlocked = Player.unlockedTitles.includes(t.id);
+        const equipped = Player.equippedTitle === t.id;
+        const d = document.createElement('div');
+        d.className = `title-row ${unlocked?'':'locked'} ${equipped?'equipped':''}`;
+        d.innerHTML = `<div class="title-name">${unlocked ? "🔓 "+t.name : "🔒 "+t.name}</div><div class="title-desc">${t.desc}</div>`;
+        if(unlocked) d.onclick = () => { 
+            Player.equippedTitle = t.id; 
+            UI.popup("Equipped!","#0f0"); UI.hideOverlay('title-overlay'); 
+            Game.updateMap();
+        };
+        l.appendChild(d);
+    });
+    UI.showOverlay('title-overlay');
+};
+Game.showShop = function() {
+    const c = document.getElementById('shop-container'); c.innerHTML = "";
+    SHOP_ITEMS.forEach(i => {
+        const d = document.createElement('div'); d.className = 'card';
+        d.innerHTML = `<div>${i.icon} ${i.name}<br><span style="font-size:10px">${i.cost}G</span><div class="item-desc">${i.desc}</div></div>`;
+        d.onclick = () => Game.buyItem(i.id, i.cost);
+        c.appendChild(d);
+    });
+    UI.show('screen-shop');
+};
+Game.buyItem = function(k, c) {
+    if(Player.gold >= c) {
+        Player.gold -= c; Player.items[k] = (Player.items[k]||0)+1;
+        Player.stats.items++;
+        Game.updateShopUI(); UI.popup("Bought!", "#0f0");
+        Game.checkTitles();
+    } else alert("Not enough Gold");
+};
+
+// --- BATTLE METHODS ---
+Battle.init = function(u) {
+    this.words = DB.filter(d=>d.u===u);
+    if(!this.words.length) return alert("No words!");
+    this.currentUnit = u;
+    this.takenDamage = false;
+    
+    const uIdx = getUnitIndex(u);
+    const baseHP = 500 + (uIdx * 60); 
+    const baseAtk = 25 + (uIdx * 2);
+    
+    this.enemy = { hp: baseHP, max: baseHP, atk: baseAtk };
+    this.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false};
+    Player.hp = Player.maxHp;
+    
+    const s=document.getElementById('enemy-sprite'); 
+    s.classList.remove('enemy-death'); s.style.transform="scale(1)";
+    UI.show('screen-battle'); 
+    this.update(); this.showCmd();
+};
+
+Battle.update = function() {
+    document.getElementById('hp-bar').style.width = (Player.hp/Player.maxHp*100)+"%";
+    document.getElementById('enemy-hp-bar').style.width = (this.enemy.hp/this.enemy.max*100)+"%";
+    UI.setText('hp-text', Player.hp);
+    UI.setText('hud-lv', Player.lv);
+    let h="";
+    if(this.buffs.atk) h+="<span class='buff-icon'>⚔️</span>";
+    if(this.buffs.crit) h+="<span class='buff-icon'>💎</span>";
+    if(this.buffs.block) h+="<span class='buff-icon'>🛡️</span>";
+    if(this.buffs.bomb) h+="<span class='buff-icon'>💣</span>";
+    if(this.buffs.drain) h+="<span class='buff-icon'>🦇</span>";
+    document.getElementById('active-buffs').innerHTML = h;
+};
+
+Battle.showCmd = function() {
+    this.state="CMD"; this.lock=false; UI.showPanel('panel-command');
+};
+
+Battle.act = function(type) {
+    this.type = type;
+    if(this.words.length===0) return;
+    this.cur = this.words[Math.floor(Math.random()*this.words.length)];
+    this.state="QUIZ"; this.lock=false; UI.showPanel('panel-question');
+    
+    let reverse = (Math.random() > 0.5 && type === 'attack');
+    let q = reverse ? this.cur.e : this.cur.j;
+    this.curAnswer = reverse ? this.cur.j : this.cur.e;
+    
+    UI.setText('q-text', q);
+    
+    if(type==='magic') {
+        document.getElementById('choice-grid').classList.add('hidden');
+        document.getElementById('write-area').classList.remove('hidden');
+        document.getElementById('write-input').value=""; document.getElementById('write-input').focus();
+    } else {
+        document.getElementById('write-area').classList.add('hidden');
+        const g=document.getElementById('choice-grid'); g.classList.remove('hidden'); g.innerHTML="";
+        
+        let num = this.buffs.bomb ? 2 : 4;
+        if(this.buffs.bomb) this.buffs.bomb = false;
+
+        let opts=[this.cur];
+        let pool = this.words.length > 5 ? this.words : DB;
+        while(opts.length < num) {
+            let r = pool[Math.floor(Math.random()*pool.length)];
+            if(!opts.includes(r)) opts.push(r);
+        }
+        opts.sort(()=>Math.random()-0.5).forEach(w=>{
+            const b=document.createElement('button'); b.className='choice-btn btn';
+            b.innerText = reverse ? w.j : w.e;
+            b.onclick=()=>this.check(w===this.cur);
+            g.appendChild(b);
+        });
+    }
+};
+
+Battle.openItems = function() {
+    const l=document.getElementById('item-list'); l.innerHTML="";
+    SHOP_ITEMS.forEach(i=>{
+        if(Player.items[i.id]>0) {
+            const b=document.createElement('button'); b.className='btn';
+            b.innerHTML=`${i.icon} ${i.name} (x${Player.items[i.id]})`;
+            b.onclick=()=>{
+                Player.items[i.id]--; UI.hideOverlay('item-overlay');
+                if(i.id=='potion') Player.hp=Math.min(Player.maxHp, Player.hp+50);
+                if(i.id=='power') this.buffs.atk=true;
+                if(i.id=='iron_shield') this.buffs.block=true;
+                if(i.id=='crit_gem') this.buffs.crit=true;
+                if(i.id=='bomb') this.buffs.bomb=true;
+                if(i.id=='vampire') this.buffs.drain=true;
+                if(i.id=='elixir') Player.hp=Player.maxHp;
+                if(i.id=='hi_potion') Player.hp=Math.min(Player.maxHp, Player.hp+150);
+                this.update();
+            };
+            l.appendChild(b);
+        }
+    });
+    UI.showOverlay('item-overlay');
+};
+
+Battle.check = function(isCorrect) {
+    if(this.lock) return; this.lock=true;
+    if(isCorrect) {
+        Player.stats.correct++;
+        document.getElementById('hero-sprite').classList.add('attack-anim');
+        setTimeout(()=>document.getElementById('hero-sprite').classList.remove('attack-anim'),300);
+        
+        let baseDmg = this.type==='magic' ? 100 : 60;
+        let lvMult = 1 + (Player.lv * 0.05);
+        let dmg = Math.floor(baseDmg * lvMult);
+
+        if(this.buffs.atk) dmg = Math.floor(dmg * 1.5);
+        if(this.buffs.crit) { dmg = Math.floor(dmg * 2.0); this.buffs.crit=false; }
+        
+        // Vampire Drain
+        if(this.buffs.drain) {
+            let heal = Math.floor(dmg * 0.5);
+            Player.hp = Math.min(Player.maxHp, Player.hp + heal);
+            UI.popup("Drain! +"+heal, "#0f0");
+            this.buffs.drain = false;
+        }
+
+        this.enemy.hp -= dmg; 
+        this.update(); 
+        UI.popup(dmg, "#fa0");
+        
+        if(this.enemy.hp<=0) {
+            document.getElementById('enemy-sprite').classList.add('enemy-death');
+            setTimeout(()=>this.win(),1500);
+        } else setTimeout(()=>this.startDefense(),800);
+    } else {
+        this.takeDamage(this.enemy.atk);
+        if(Player.hp > 0) {
+            UI.setText('fb-correct-ans', this.curAnswer || this.cur.e);
+            UI.showOverlay('feedback-overlay');
+        }
+    }
+};
+
+Battle.startDefense = function() {
+    this.state="DEFENSE"; this.lock=false;
+    if(this.buffs.block) { this.buffs.block=false; setTimeout(()=>this.endDef(true),500); return; }
+    
+    setTimeout(()=>{
+        UI.showOverlay('defense-panel');
+        document.getElementById('write-input').value = ""; 
+        let pool = this.words.length > 0 ? this.words : DB;
+        let r = pool[Math.floor(Math.random()*pool.length)];
+        this.defWord = r.e; this.defMeaning = r.j;
+        this.defIdx=0; this.defTimer=300;
+        
+        UI.setText('def-meaning', this.defMeaning);
+        this.renderDef(); this.defLoop();
+    },300);
+};
+
+Battle.defLoop = function() {
+    if(this.state!=="DEFENSE") return;
+    this.defTimer--;
+    document.getElementById('def-timer-fill').style.width = (this.defTimer/300*100)+"%";
+    if(this.defTimer<=0) this.endDef(false);
+    else requestAnimationFrame(()=>this.defLoop());
+};
+
+Battle.renderDef = function() {
+    let h=""; for(let i=0; i<this.defWord.length; i++) {
+        h+=`<span style="color:${i<this.defIdx?'#0f0':'#fff'}">${this.defWord[i]}</span>`;
+    }
+    document.getElementById('def-word').innerHTML=h;
+};
+
+Battle.checkDef = function(key) {
+    if(this.lock || document.getElementById('defense-panel').classList.contains('hidden')) return;
+    if(key.toLowerCase()===this.defWord[this.defIdx].toLowerCase()){
+        this.defIdx++; this.renderDef();
+        if(this.defIdx>=this.defWord.length) this.endDef(true);
+    }
+};
+
+Battle.endDef = function(success) {
+    this.state="BATTLE"; UI.hideOverlay('defense-panel');
+    if(success) {
+        let dmg=40; 
+        if(Player.lv>=20) dmg+=10; 
+        Player.stats.blocks = (Player.stats.blocks||0)+1;
+        this.enemy.hp-=dmg; UI.popup("Counter! "+dmg, "#0ff"); this.update();
+        if(this.enemy.hp<=0) {
+             document.getElementById('enemy-sprite').classList.add('enemy-death');
+             setTimeout(()=>this.win(),1500);
+        } else setTimeout(()=>this.showCmd(),1000);
+    } else {
+        this.takeDamage(this.enemy.atk);
+        if(Player.hp > 0) setTimeout(()=>this.showCmd(),1000);
+    }
+};
+
+Battle.takeDamage = function(dmg) {
+    this.takenDamage = true;
+    Player.hp -= dmg;
+    document.getElementById('hero-sprite').classList.add('damage-anim');
+    setTimeout(()=>document.getElementById('hero-sprite').classList.remove('damage-anim'),300);
+    UI.popup("Hit! -"+dmg, "#f00"); 
+    document.getElementById('app').classList.add('shake');
+    setTimeout(()=>document.getElementById('app').classList.remove('shake'),400);
+    this.update();
+    if(Player.hp<=0) { alert("GAME OVER"); UI.show('screen-title'); }
+};
+
+Battle.win = function() {
+    const uIdx = getUnitIndex(this.currentUnit);
+    let baseRew = 50 * (1 + uIdx * 0.15); 
+    let finalRew = Math.floor(baseRew * (1 + Player.lv * 0.05));
+
+    Player.gold += finalRew; 
+    Player.exp += finalRew; 
+    Player.stats.totalGold += finalRew;
+    
+    if(Player.exp >= Player.nextExp) { 
+        Player.lv++; 
+        Player.exp -= Player.nextExp; 
+        Player.nextExp = Math.floor(Player.nextExp * 1.2); 
+        Player.maxHp += 10; 
+        Player.hp = Player.maxHp; 
+    }
+    
+    if(!this.takenDamage) {
+        Player.stats.noDamageCount++;
+        if(!Player.stats.unitPerfect) Player.stats.unitPerfect = {};
+        Player.stats.unitPerfect[this.currentUnit] = true;
+    }
+    Game.checkTitles();
+
+    UI.setText('res-gold', finalRew);
+    UI.setText('res-exp', finalRew);
+    
+    let msg = "";
+    if(!this.takenDamage) msg += "✨ Perfect Clear! (No Damage) ✨\n";
+    UI.setText('levelup-msg', msg);
+
+    UI.show('screen-result');
+    document.getElementById('enemy-sprite').classList.remove('enemy-death');
+    UI.confetti();
+};
+
+// --- DEBUG METHODS ---
+Debug.cnt=0;
+Debug.trigger = function(){ this.cnt++; if(this.cnt>=15){ this.cnt=0; Player.unlockedTitles.push(99); document.getElementById('debug-btn').style.display='block'; alert("Debug Unlocked!"); } };
+Debug.setLv = function(){ Player.lv=parseInt(document.getElementById('debug-lv').value); Player.hp=100+(Player.lv-1)*10; Player.maxHp=Player.hp; Game.updateMap(); };
+Debug.setGold = function(){ Player.gold=parseInt(document.getElementById('debug-gold').value); Game.updateMap(); };
+Debug.unlockAllTitles = function(){ Player.unlockedTitles=[0,1,2,3,4,5,6,10,11,12,13,14,20,30,31,32,33,34,35,36,37,38,39,40,41,99]; alert("Titles Unlocked"); };
+Debug.fullRestore = function(){ Player.hp=Player.maxHp; alert("Recovered!"); };
+
+// --- INIT ---
+window.onload = function() {
+    Game.renderMap();
+    document.getElementById('btn-start').onclick = Game.start;
+    document.getElementById('btn-shop').onclick = Game.showShop;
+    document.getElementById('btn-titles').onclick = Game.openTitles;
+    document.getElementById('btn-title-back').onclick = () => UI.show('screen-title');
+    document.getElementById('btn-shop-back').onclick = () => UI.show('screen-map');
+    document.getElementById('btn-atk').onclick = () => Battle.act('attack');
+    document.getElementById('btn-mag').onclick = () => Battle.act('magic');
+    document.getElementById('btn-item').onclick = () => Battle.openItems();
+    document.getElementById('btn-flee').onclick = () => UI.show('screen-map');
+    document.getElementById('btn-cancel').onclick = () => Battle.showCmd();
+    document.getElementById('btn-submit').onclick = () => Battle.check(document.getElementById('write-input').value.trim().toLowerCase()===Battle.cur.e.toLowerCase());
+    document.getElementById('btn-fb-ok').onclick = () => { UI.hideOverlay('feedback-overlay'); Battle.startDefense(); };
+    document.getElementById('btn-next').onclick = () => UI.show('screen-map');
+    document.getElementById('btn-close-item').onclick = () => UI.hideOverlay('item-overlay');
+    document.getElementById('btn-close-title').onclick = () => UI.hideOverlay('title-overlay');
+    document.getElementById('btn-close-debug').onclick = () => UI.toggleDebug();
+    document.getElementById('btn-debug-setlv').onclick = Debug.setLv;
+    document.getElementById('btn-debug-setgold').onclick = Debug.setGold;
+    document.getElementById('btn-debug-unlock').onclick = Debug.unlockAllTitles;
+    document.getElementById('btn-debug-restore').onclick = Debug.fullRestore;
+    document.getElementById('debug-btn').onclick = UI.toggleDebug;
+
+    window.onkeydown = function(e) {
+        if(Battle.state==="QUIZ" && Battle.type==='magic' && e.key==='Enter') document.getElementById('btn-submit').click();
+        if(Battle.state==="DEFENSE" && e.key.length===1) Battle.checkDef(e.key);
+    };
+};
+</script>
+</body>
+</html>
