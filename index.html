@@ -133,7 +133,7 @@ const Debug = {
 <div id="app">
     <div id="screen-title" class="screen active center">
         <h1 onclick="Debug.trigger()">WORD QUEST<br><span style="font-size:0.6em;color:#fff;">GRADE 1</span></h1>
-        <p style="color:#aaa;">Textbook Edition (v24 - No Dmg Bonus)</p>
+        <p style="color:#aaa;">Textbook Edition (v25 - Typing Fix)</p>
         <button id="btn-start" class="btn start-btn">START</button>
         <p style="font-size:12px; color:#555; margin-top:50px; opacity:0;">(Debug Hidden)</p>
     </div>
@@ -188,7 +188,7 @@ const Debug = {
             <div id="q-text"></div>
             <div id="choice-grid"></div>
             <div id="write-area" class="hidden">
-                <input type="text" id="write-input" autocomplete="off" placeholder="Type here...">
+                <input type="text" id="write-input" autocomplete="off" spellcheck="false" placeholder="Type here...">
                 <button id="btn-submit" class="btn">ATTACK</button>
             </div>
         </div>
@@ -430,7 +430,7 @@ Battle.init = function(u) {
     this.takenDamage = false;
     this.lastWord = null;
     
-    const uIdx = UNITS.indexOf(u);
+    const uIdx = Math.max(0, UNITS.indexOf(u));
     const baseHP = 300 + (uIdx * 30); 
     const baseAtk = 15 + (uIdx * 1.5);
     
@@ -592,15 +592,15 @@ Battle.startDefense = function() {
         this.defWord = r.e; this.defMeaning = r.j;
         this.defIdx=0; 
         
-        // --- タイマー時間の調整 (1秒 ≒ 60フレーム) ---
-        let seconds = 8; // 基本8秒
+        // --- Timer Adjustment based on length ---
+        let seconds = 8; // default
         if(this.defWord.length >= 12) {
-            seconds = 15; // 12文字以上は15秒
+            seconds = 15; 
         } else if(this.defWord.length >= 8) {
-            seconds = 12; // 8〜11文字は12秒
+            seconds = 12; 
         }
         this.defTimer = seconds * 60;
-        this.defMaxTimer = this.defTimer; // ゲージ計算用
+        this.defMaxTimer = this.defTimer; 
         
         UI.setText('def-meaning', this.defMeaning);
         
@@ -630,7 +630,6 @@ Battle.startDefense = function() {
 Battle.defLoop = function() {
     if(this.state!=="DEFENSE") return;
     this.defTimer--;
-    // 最大値を使ってゲージを減らす
     document.getElementById('def-timer-fill').style.width = (this.defTimer / this.defMaxTimer * 100) + "%";
     if(this.defTimer<=0) this.endDef(false);
     else requestAnimationFrame(()=>this.defLoop());
@@ -731,7 +730,7 @@ Battle.takeDamage = function(dmg) {
 };
 
 Battle.win = function() {
-    const uIdx = UNITS.indexOf(this.currentUnit);
+    const uIdx = Math.max(0, UNITS.indexOf(this.currentUnit));
     let baseRew = 50 * (1 + uIdx * 0.15); 
     let finalRew = Math.floor(baseRew * (1 + Player.lv * 0.05));
 
@@ -739,7 +738,7 @@ Battle.win = function() {
     
     // --- NO DAMAGE BONUS ---
     if(!this.takenDamage) {
-        finalRew = Math.floor(finalRew * 1.5); // 1.5倍ボーナス
+        finalRew = Math.floor(finalRew * 1.5); 
         bonusMsg += "✨ Perfect Clear! (No Damage Bonus x1.5) ✨\n";
         
         Player.stats.noDamageCount++;
@@ -747,7 +746,6 @@ Battle.win = function() {
         Player.stats.unitPerfect[this.currentUnit] = true;
     }
 
-    // ITEM MULTIPLIERS
     if(this.buffs.wisdom) finalRew = Math.floor(finalRew * 2);
     if(this.buffs.wealth) finalRew = Math.floor(finalRew * 2);
 
@@ -847,7 +845,21 @@ window.onload = function() {
     document.getElementById('btn-item').onclick = () => Battle.openItems();
     document.getElementById('btn-flee').onclick = () => UI.show('screen-map');
     document.getElementById('btn-cancel').onclick = () => Battle.showCmd();
-    document.getElementById('btn-submit').onclick = () => Battle.check(document.getElementById('write-input').value.trim().toLowerCase()===Battle.cur.e.toLowerCase());
+    
+    // ライティング(MAGIC)での攻撃処理
+    document.getElementById('btn-submit').onclick = () => {
+        if(Battle.state === "QUIZ" && Battle.type === 'magic') {
+            const inputVal = document.getElementById('write-input').value.trim().toLowerCase();
+            const correctVal = Battle.curAnswer.toLowerCase();
+            
+            if (inputVal === correctVal) {
+                Battle.check(true);
+            } else {
+                Battle.check(false);
+            }
+        }
+    };
+    
     document.getElementById('btn-fb-ok').onclick = () => { UI.hideOverlay('feedback-overlay'); Battle.startDefense(); };
     document.getElementById('btn-next').onclick = () => UI.show('screen-map');
     document.getElementById('btn-close-item').onclick = () => UI.hideOverlay('item-overlay');
@@ -860,7 +872,10 @@ window.onload = function() {
     document.getElementById('debug-btn').onclick = UI.toggleDebug;
 
     window.onkeydown = function(e) {
-        if(e.key === " ") e.preventDefault(); // Stop scrolling
+        // [修正] INPUT要素にフォーカスがないときだけ、スペースキーによるスクロールを無効化する
+        if(e.key === " " && document.activeElement.tagName !== "INPUT") {
+            e.preventDefault(); 
+        }
         if(Battle.state==="QUIZ" && Battle.type==='magic' && e.key==='Enter') document.getElementById('btn-submit').click();
         if(Battle.state==="DEFENSE") Battle.checkDef(e.key);
     };
