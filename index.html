@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Quest: Grade 1 Final Complete</title>
+<title>Word Quest: Grade 1 Textbook Complete (Tablet Ready)</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
     :root { --bg: #1a1a15; --panel: rgba(40,30,20,0.95); --acc: #ffaa00; --hp: #00ffaa; --dmg: #ff4444; --font: 'DotGothic16', sans-serif; }
-    * { box-sizing: border-box; user-select: none; }
+    * { box-sizing: border-box; user-select: none; touch-action: manipulation; } /* タブレットでの誤操作防止 */
     body { margin: 0; background: var(--bg); color: #fff; font-family: var(--font); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     #app { width: 100%; max-width: 900px; height: 100%; max-height: 700px; position: relative; background: #100a05; border: 2px solid #642; border-radius: 12px; overflow: hidden; box-shadow: 0 0 50px #000; }
     
+    #error-box { display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; color:#ff5555; padding:20px; white-space:pre-wrap; font-family:monospace; text-align:left; overflow:auto; font-size: 14px; line-height: 1.5; }
+
     .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; background: #181008; z-index: 10; }
     .screen.active { display: flex; }
     .center { align-items: center; justify-content: center; text-align: center; }
@@ -25,7 +27,7 @@
     .top-bar, .bottom-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #221810; border-bottom: 1px solid #432; }
     .bottom-bar { justify-content: center; border-top: 1px solid #432; border-bottom: none; }
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; width: 100%; overflow-y: auto; padding: 15px; flex: 1; }
-    .card { background: #2a2018; border: 1px solid #543; padding: 10px; border-radius: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; font-weight: bold; color: var(--acc); font-size: 12px; }
+    .card { background: #2a2018; border: 1px solid #543; padding: 10px; border-radius: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; font-weight: bold; color: var(--acc); font-size: 14px; }
     .card:hover { border-color: var(--acc); background: #35251a; transform: scale(1.05); }
     .item-desc { font-size: 10px; color: #aaa; margin-top: 5px; font-weight: normal; }
     
@@ -54,7 +56,14 @@
     .timer-bar { width: 80%; height: 20px; background: #310; margin-bottom: 20px; border: 2px solid #fff; border-radius: 10px; overflow:hidden;}
     #def-timer-fill { height: 100%; background: #fa0; width: 100%; transition: width 0.1s linear; }
     #def-word { font-family: 'Press Start 2P', monospace; font-size: 32px; text-shadow: 4px 4px 0 #000; margin-bottom: 5px; letter-spacing: 3px; word-break: break-all; text-align: center; padding: 0 20px; }
-    #def-meaning { font-size: 24px; color: #fa0; margin-bottom: 20px; text-align: center; }
+    #def-meaning { font-size: 20px; color: #fa0; margin-bottom: 20px; text-align: center; }
+    
+    /* タブレット用タップキーボード */
+    #def-keys { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90%; }
+    .def-key { background: #322; border: 2px solid var(--acc); color: #fff; font-size: 24px; font-family: 'Press Start 2P', monospace; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 0 #110; transition: 0.1s; }
+    .def-key:active { transform: translateY(4px); box-shadow: 0 0 0 #110; }
+    .def-key.used { visibility: hidden; }
+
     #fb-correct-ans { color: var(--acc); font-size: 24px; margin: 20px; font-weight: bold; font-family: 'Press Start 2P', monospace; text-align: center; }
 
     #title-list { width: 90%; height: 70%; overflow-y: auto; background: #221; border: 2px solid #543; padding: 10px; display: grid; grid-template-columns: 1fr; gap: 5px; }
@@ -91,7 +100,7 @@ const Debug = {
     cnt: 0,
     trigger: function() {
         this.cnt++;
-        if(this.cnt >= 15) {
+        if(this.cnt >= 10) {
             this.cnt = 0;
             if(!Player.unlockedTitles.includes(99)) {
                 Player.unlockedTitles.push(99);
@@ -113,20 +122,11 @@ const Debug = {
 </head>
 <body>
 
-<div id="error-box"></div>
-<script>
-    window.onerror = function(msg, url, line) {
-        document.getElementById('error-box').style.display = 'block';
-        document.getElementById('error-box').innerHTML += "⚠️ ERROR: " + msg + "<br>Line: " + line + "<br><br>";
-    };
-</script>
-
 <div id="app">
     <div id="screen-title" class="screen active center">
         <h1 onclick="Debug.trigger()">WORD QUEST<br><span style="font-size:0.6em;color:#fff;">GRADE 1</span></h1>
-        <p style="color:#aaa;">Textbook Complete (v21)</p>
+        <p style="color:#aaa;">Tablet Edition (v22)</p>
         <button id="btn-start" class="btn start-btn">START</button>
-        <p style="font-size:12px; color:#555; margin-top:50px; opacity:0;">(Debug Hidden)</p>
     </div>
 
     <div id="screen-map" class="screen">
@@ -179,17 +179,20 @@ const Debug = {
             <div id="q-text"></div>
             <div id="choice-grid"></div>
             <div id="write-area" class="hidden">
-                <input type="text" id="write-input" autocomplete="off">
+                <input type="text" id="write-input" autocomplete="off" placeholder="Type here...">
                 <button id="btn-submit" class="btn">ATTACK</button>
             </div>
         </div>
+        
         <div id="defense-panel" class="overlay hidden">
             <h2>DEFEND!</h2>
             <div class="timer-bar"><div id="def-timer-fill"></div></div>
             <div id="def-word"></div>
             <div id="def-meaning"></div>
-            <div style="color:#ccc;">Type to Block!</div>
+            <div style="color:#ccc; margin-bottom:15px; font-size:12px;">Type OR Tap letters in order!</div>
+            <div id="def-keys"></div>
         </div>
+        
         <div id="feedback-overlay" class="overlay hidden">
             <h2 class="danger-text">WRONG!</h2>
             <div style="color:#ddd;">Answer:</div>
@@ -282,7 +285,7 @@ const TITLE_DB = [
     {id:99, name:"Cheater", desc:"Debug Mode", cond:function(h){return h.unlockedTitles.includes(99)}}
 ];
 
-// --- METHODS ---
+// --- 4. METHODS ---
 function setText(id, text) {
     const el = document.getElementById(id);
     if(el) el.innerText = text;
@@ -577,6 +580,29 @@ Battle.startDefense = function() {
         this.defIdx=0; this.defTimer=300;
         
         UI.setText('def-meaning', this.defMeaning);
+        
+        // --- タブレット用タップパネルの生成 ---
+        const keysContainer = document.getElementById('def-keys');
+        keysContainer.innerHTML = "";
+        let chars = this.defWord.split('').map(c => c.toLowerCase());
+        
+        // シャッフル
+        for(let i = chars.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [chars[i], chars[j]] = [chars[j], chars[i]];
+        }
+        
+        chars.forEach((c) => {
+            if(c === ' ') return; // 空白はボタンにしない
+            let btn = document.createElement('div');
+            btn.className = 'def-key';
+            btn.innerText = c;
+            btn.dataset.char = c;
+            // タップ（クリック）されたら判定処理へ送る
+            btn.onclick = () => Battle.checkDef(c, btn);
+            keysContainer.appendChild(btn);
+        });
+
         this.renderDef(); this.defLoop();
     },300);
 };
@@ -590,18 +616,71 @@ Battle.defLoop = function() {
 };
 
 Battle.renderDef = function() {
-    let h=""; for(let i=0; i<this.defWord.length; i++) {
-        h+=`<span style="color:${i<this.defIdx?'#0f0':'#fff'}">${this.defWord[i]}</span>`;
+    let h=""; 
+    for(let i=0; i<this.defWord.length; i++) {
+        let c = this.defWord[i];
+        if(c === ' ') {
+            h += `<span style="margin: 0 10px;"> </span>`; // 空白を視覚的にあける
+        } else {
+            h += `<span style="color:${i<this.defIdx?'#0f0':'#fff'}">${c}</span>`;
+        }
     }
     document.getElementById('def-word').innerHTML=h;
 };
 
-Battle.checkDef = function(key) {
+Battle.checkDef = function(key, btnElem = null) {
     if(this.lock || document.getElementById('defense-panel').classList.contains('hidden')) return;
     if(key.length !== 1) return;
-    if(key.toLowerCase()===this.defWord[this.defIdx].toLowerCase()){
-        this.defIdx++; this.renderDef();
-        if(this.defIdx>=this.defWord.length) this.endDef(true);
+    
+    // 現在打つべき文字を取得
+    let targetChar = this.defWord[this.defIdx].toLowerCase();
+
+    // 空白やハイフンなど記号をスキップする処理（必要に応じて）
+    while(targetChar === ' ' || targetChar === '-' || targetChar === "'" || targetChar === "?" || targetChar === "." || targetChar === ",") {
+        this.defIdx++;
+        if(this.defIdx >= this.defWord.length) {
+            this.endDef(true);
+            return;
+        }
+        targetChar = this.defWord[this.defIdx].toLowerCase();
+        this.renderDef();
+    }
+
+    if(key.toLowerCase() === targetChar){
+        this.defIdx++;
+        
+        // タップしたボタン（または該当する文字ボタン）を消す
+        if(btnElem) {
+            btnElem.classList.add('used');
+        } else {
+            let keys = document.querySelectorAll('.def-key:not(.used)');
+            for(let k of keys) {
+                if(k.dataset.char === targetChar) {
+                    k.classList.add('used');
+                    break;
+                }
+            }
+        }
+
+        this.renderDef();
+        
+        // 記号等で終わる場合のスキップ処理
+        while(this.defIdx < this.defWord.length) {
+             let nextChar = this.defWord[this.defIdx];
+             if(nextChar === ' ' || nextChar === '-' || nextChar === "'" || nextChar === "?" || nextChar === "." || nextChar === ",") {
+                 this.defIdx++;
+                 this.renderDef();
+             } else {
+                 break;
+             }
+        }
+
+        if(this.defIdx >= this.defWord.length) this.endDef(true);
+    } else {
+        // ミスしたときは画面を揺らす
+        let panel = document.getElementById('defense-panel');
+        panel.classList.add('shake');
+        setTimeout(()=>panel.classList.remove('shake'), 300);
     }
 };
 
@@ -671,7 +750,7 @@ Battle.win = function() {
     UI.confetti();
 };
 
-// --- DATA ---
+// --- 5. DATA (FULL GRADE 1 SET) ---
 const DB = [
 // U1-1
 {u:"U1",e:"call",j:"呼ぶ"},{u:"U1",e:"South Africa",j:"南アフリカ共和国"},{u:"U1",e:"love",j:"愛する"},{u:"U1",e:"everyone",j:"みんな"},{u:"U1",e:"me",j:"私を"},{u:"U1",e:"from",j:"…から"},{u:"U1",e:"Japanese",j:"日本語"},{u:"U1",e:"sweet",j:"甘い菓子"},{u:"U1",e:"and",j:"…と～"},{u:"U1",e:"too",j:"～もまた"},{u:"U1",e:"join",j:"参加する"},{u:"U1",e:"the",j:"その"},{u:"U1",e:"club",j:"クラブ"},{u:"U1",e:"Call me",j:"私を…と呼んで"},{u:"U1",e:"want to",j:"…したい"},{u:"U1",e:"number",j:"数"},{u:"U1",e:"one",j:"1"},{u:"U1",e:"two",j:"2"},{u:"U1",e:"three",j:"3"},{u:"U1",e:"four",j:"4"},{u:"U1",e:"five",j:"5"},{u:"U1",e:"six",j:"6"},{u:"U1",e:"seven",j:"7"},{u:"U1",e:"eight",j:"8"},{u:"U1",e:"nine",j:"9"},{u:"U1",e:"eleven",j:"11"},{u:"U1",e:"twelve",j:"12"},{u:"U1",e:"thirteen",j:"13"},{u:"U1",e:"fourteen",j:"14"},{u:"U1",e:"fifteen",j:"15"},{u:"U1",e:"sixteen",j:"16"},{u:"U1",e:"seventeen",j:"17"},{u:"U1",e:"eighteen",j:"18"},{u:"U1",e:"nineteen",j:"19"},{u:"U1",e:"twenty",j:"20"},{u:"U1",e:"thirty",j:"30"},{u:"U1",e:"forty",j:"40"},{u:"U1",e:"fifty",j:"50"},{u:"U1",e:"sixty",j:"60"},{u:"U1",e:"seventy",j:"70"},{u:"U1",e:"eighty",j:"80"},{u:"U1",e:"ninety",j:"90"},{u:"U1",e:"hundred",j:"100"},{u:"U1",e:"zero",j:"0"},{u:"U1",e:"fan",j:"ファン"},{u:"U1",e:"often",j:"しばしば"},{u:"U1",e:"with",j:"一緒に"},{u:"U1",e:"but",j:"しかし"},{u:"U1",e:"rugby",j:"ラグビー"},{u:"U1",e:"watch",j:"見る"},{u:"U1",e:"friend",j:"友達"},{u:"U1",e:"great",j:"すばらしい"},{u:"U1",e:"no",j:"いいえ"},{u:"U1",e:"not",j:"…でない"},{u:"U1",e:"oh",j:"まあ"},{u:"U1",e:"don't",j:"do not"},{u:"U1",e:"do",j:"する"},{u:"U1",e:"draw",j:"描く"},{u:"U1",e:"an",j:"1つの"},{u:"U1",e:"anime",j:"アニメ"},{u:"U1",e:"so",j:"だから"},{u:"U1",e:"about",j:"について"},{u:"U1",e:"lesson",j:"授業"},{u:"U1",e:"comic",j:"マンガ"},{u:"U1",e:"wow",j:"うわあ"},{u:"U1",e:"are",j:"…です"},{u:"U1",e:"in",j:"…に"},{u:"U1",e:"art",j:"美術"},{u:"U1",e:"how",j:"どんな"},{u:"U1",e:"school",j:"学校"},{u:"U1",e:"now",j:"今"},{u:"U1",e:"take",j:"とる"},{u:"U1",e:"swimming",j:"水泳"},{u:"U1",e:"How about you?",j:"あなたはどうですか"},
@@ -700,7 +779,7 @@ const DB = [
 // LR2
 {u:"LR2",e:"once",j:"かつて"},{u:"LR2",e:"poor",j:"貧しい"},{u:"LR2",e:"rich",j:"金持ちの"},{u:"LR2",e:"sell",j:"売る"},{u:"LR2",e:"candy",j:"キャンディー"},{u:"LR2",e:"door-to-door",j:"戸別に"},{u:"LR2",e:"earn",j:"かせぐ"},{u:"LR2",e:"few",j:"少しの"},{u:"LR2",e:"coin",j:"硬貨"},{u:"LR2",e:"knock",j:"ノックする"},{u:"LR2",e:"well-off",j:"裕福な"},{u:"LR2",e:"herself",j:"彼女自身"},{u:"LR2",e:"a glass of",j:"コップ1杯の"},{u:"LR2",e:"a few",j:"少数の"},{u:"LR2",e:"be about to",j:"今にも…しようとしている"},{u:"LR2",e:"about",j:"今にも"},{u:"LR2",e:"pocket",j:"ポケット"},{u:"LR2",e:"reply",j:"答える"},{u:"LR2",e:"pay",j:"払う"},{u:"LR2",e:"kindness",j:"親切"},{u:"LR2",e:"away",j:"はなれて"},{u:"LR2",e:"wonder",j:"思いをめぐらす"},{u:"LR2",e:"hope",j:"望む"},{u:"LR2",e:"with a smile",j:"にっこり笑って"},{u:"LR2",e:"do well",j:"順調にやる"},{u:"LR2",e:"before",j:"…する前に"},{u:"LR2",e:"better",j:"もっとよい"},{u:"LR2",e:"smile",j:"ほほえみ"},{u:"LR2",e:"ill",j:"病気で"},{u:"LR2",e:"sent",j:"sendの過去形"},{u:"LR2",e:"send",j:"送る"},{u:"LR2",e:"operation",j:"手術"},{u:"LR2",e:"woke",j:"wakeの過去形"},{u:"LR2",e:"alive",j:"生きて"},{u:"LR2",e:"envelope",j:"封筒"},{u:"LR2",e:"bill",j:"請求書"},{u:"LR2",e:"afraid",j:"こわがって"},{u:"LR2",e:"inside",j:"内側に"},{u:"LR2",e:"paid",j:"支払い済みの"},{u:"LR2",e:"go by",j:"過ぎる"},{u:"LR2",e:"in front of",j:"…の前で"},{u:"LR2",e:"right away",j:"すぐに"},{u:"LR2",e:"be afraid to",j:"…するのがこわい"},{u:"LR2",e:"in full",j:"全部"},{u:"LR2",e:"here's",j:"here is"},{u:"LR2",e:"full",j:"完全な"},{u:"LR2",e:"right",j:"ちょうど"},{u:"LR2",e:"say",j:"書いてある"},
 // LR3
-{u:"LR3",e:"planet",j:"惑星"},{u:"LR3",e:"photograph",j:"写真"},{u:"LR3",e:"university",j:"大学"},{u:"LR3",e:"attracted",j:"ひきつけられる"},{u:"LR3",e:"middle",j:"中央"},{u:"LR3",e:"wilderness",j:"荒野"},{u:"LR3",e:"mayor",j:"市長"},{u:"LR3",e:"invite",j:"招待する"},{u:"LR3",e:"dream",j:"夢"},{u:"LR3",e:"true",j:"本当の"},{u:"LR3",e:"in the middle of",j:"…の真ん中に"},{u:"LR3",e:"for himself",j:"自分で"},{u:"LR3",e:"come true",j:"実現する"},{u:"LR3",e:"change",j:"変える"},{u:"LR3",e:"life",j:"一生"},{u:"LR3",e:"write",j:"手紙を書く"},{u:"LR3",e:"among",j:"…の中で"},{u:"LR3",e:"convenience",j:"便利なこと"},{u:"LR3",e:"hunt",j:"狩る"},{u:"LR3",e:"gather",j:"集める"},{u:"LR3",e:"berry",j:"ベリー"},{u:"LR3",e:"tradition",j:"伝統"},{u:"LR3",e:"harmoniously",j:"調和して"},{u:"LR3",e:"understood",j:"understandの過去形"},{u:"LR3",e:"living",j:"生きている"},{u:"LR3",e:"share",j:"共有する"},{u:"LR3",e:"became",j:"becomeの過去形"},{u:"LR3",e:"part",j:"部分"},{u:"LR3",e:"return",j:"帰る"},{u:"LR3",e:"photographer",j:"写真家"},{u:"LR3",e:"camp",j:"キャンプをする"},{u:"LR3",e:"severe",j:"厳しい"},{u:"LR3",e:"wild",j:"野生の"},{u:"LR3",e:"lonely",j:"ひとりぼっちの"},{u:"LR3",e:"freedom",j:"自由"},{u:"LR3",e:"playful",j:"楽しげな"},{u:"LR3",e:"scene",j:"景色"},{u:"LR3",e:"suddenly",j:"突然"},{u:"LR3",e:"kill",j:"殺す"},{u:"LR3",e:"alone",j:"ひとりで"},{u:"LR3",e:"end",j:"終わり"},{u:"LR3",e:"free",j:"自由な"},{u:"LR3",e:"wonder",j:"驚き"},{u:"LR3",e:"glacier",j:"氷河"},{u:"LR3",e:"disappear",j:"姿を消す"},{u:"LR3",e:"global warming",j:"地球温暖化"},{u:"LR3",e:"enough",j:"十分な"},{u:"LR3",e:"habitat",j:"生息地"},{u:"LR3",e:"grow",j:"…になる"},{u:"LR3",e:"lose",j:"失う"},{u:"LR3",e:"land",j:"土地"},{u:"LR3",e:"island",j:"島"},{u:"LR3",e:"slowly",j:"ゆっくりと"},{u:"LR3",e:"twice",j:"2倍"},{u:"LR3",e:"rest",j:"残り"},{u:"LR3",e:"Earth",j:"地球"},{u:"LR3",e:"remind",j:"思い出させる"},{u:"LR3",e:"past",j:"過去"},{u:"LR3",e:"pass",j:"手渡す"},{u:"LR3",e:"beauty",j:"美しさ"},{u:"LR3",e:"turn into",j:"…になる"},{u:"LR3",e:"twice as ... as",j:"～より2倍…"},{u:"LR3",e:"remind ... of",j:"…に～を思い出させる"},{u:"LR3",e:"pass on ... to",j:"…を～に伝える"},{u:"LR3",e:"into",j:"…に(なる)"},{u:"LR3",e:"way",j:"方法"},
+{u:"LR3",e:"planet",j:"惑星"},{u:"LR3",e:"photograph",j:"写真"},{u:"LR3",e:"university",j:"大学"},{u:"LR3",e:"attracted",j:"ひきつけられる"},{u:"LR3",e:"middle",j:"中央"},{u:"LR3",e:"wilderness",j:"荒野"},{u:"LR3",e:"mayor",j:"市長"},{u:"LR3",e:"invite",j:"招待する"},{u:"LR3",e:"dream",j:"夢"},{u:"LR3",e:"true",j:"本当の"},{u:"LR3",e:"in the middle of",j:"…の真ん中に"},{u:"LR3",e:"for himself",j:"自分で"},{u:"LR3",e:"come true",j:"実現する"},{u:"LR3",e:"change",j:"変える"},{u:"LR3",e:"life",j:"一生"},{u:"LR3",e:"write",j:"手紙を書く"},{u:"LR3",e:"among",j:"…の中で"},{u:"LR3",e:"convenience",j:"便利なこと"},{u:"LR3",e:"hunt",j:"狩る"},{u:"LR3",e:"gather",j:"集める"},{u:"LR3",e:"berry",j:"ベリー"},{u:"LR3",e:"tradition",j:"伝統"},{u:"LR3",e:"harmoniously",j:"調和して"},{u:"LR3",e:"understood",j:"understandの過去形"},{u:"LR3",e:"living",j:"生きている"},{u:"LR3",e:"share",j:"共有する"},{u:"LR3",e:"became",j:"becomeの過去形"},{u:"LR3",e:"part",j:"部分"},{u:"LR3",e:"return",j:"帰る"},{u:"LR3",e:"photographer",j:"写真家"},{u:"LR3",e:"camp",j:"キャンプをする"},{u:"LR3",e:"severe",j:"厳しい"},{u:"LR3",e:"wild",j:"野生の"},{u:"LR3",e:"lonely",j:"ひとりぼっちの"},{u:"LR3",e:"freedom",j:"自由"},{u:"LR3",e:"playful",j:"楽しげな"},{u:"LR3",e:"scene",j:"景色"},{u:"LR3",e:"suddenly",j:"突然"},{u:"LR3",e:"kill",j:"殺す"},{u:"LR3",e:"alone",j:"ひとりで"},{u:"LR3",e:"end",j:"終わる"},{u:"LR3",e:"free",j:"自由な"},{u:"LR3",e:"wonder",j:"驚き"},{u:"LR3",e:"glacier",j:"氷河"},{u:"LR3",e:"disappear",j:"姿を消す"},{u:"LR3",e:"global warming",j:"地球温暖化"},{u:"LR3",e:"enough",j:"十分な"},{u:"LR3",e:"habitat",j:"生息地"},{u:"LR3",e:"grow",j:"…になる"},{u:"LR3",e:"lose",j:"失う"},{u:"LR3",e:"land",j:"土地"},{u:"LR3",e:"island",j:"島"},{u:"LR3",e:"slowly",j:"ゆっくりと"},{u:"LR3",e:"twice",j:"2倍"},{u:"LR3",e:"rest",j:"残り"},{u:"LR3",e:"Earth",j:"地球"},{u:"LR3",e:"remind",j:"思い出させる"},{u:"LR3",e:"past",j:"過去"},{u:"LR3",e:"pass",j:"手渡す"},{u:"LR3",e:"beauty",j:"美しさ"},{u:"LR3",e:"turn into",j:"…になる"},{u:"LR3",e:"twice as ... as",j:"～より2倍…"},{u:"LR3",e:"remind ... of",j:"…に～を思い出させる"},{u:"LR3",e:"pass on ... to",j:"…を～に伝える"},{u:"LR3",e:"into",j:"…に(なる)"},{u:"LR3",e:"way",j:"方法"},
 // Unit 7
 {u:"U7",e:"of",j:"…を"},{u:"U7",e:"tomorrow",j:"明日"},{u:"U7",e:"plan",j:"計画"},{u:"U7",e:"free",j:"ひまな"},{u:"U7",e:"mean",j:"…を意味する"},{u:"U7",e:"forward",j:"楽しみに待つ"},{u:"U7",e:"busy",j:"忙しい"},{u:"U7",e:"talk",j:"話す"},{u:"U7",e:"up",j:"どうしたのですか"},{u:"U7",e:"What's up?",j:"どうしたのですか"},{u:"U7",e:"sound like",j:"…のように聞こえる"},{u:"U7",e:"look forward to",j:"…を楽しみに待つ"},{u:"U7",e:"am",j:"[進行形]"},{u:"U7",e:"hello",j:"もしもし"},{u:"U7",e:"at",j:"…に"},{u:"U7",e:"online",j:"オンラインの"},{u:"U7",e:"market",j:"市場"},{u:"U7",e:"souvenir",j:"記念品"},{u:"U7",e:"place",j:"場所"},{u:"U7",e:"appear",j:"現れる"},{u:"U7",e:"those",j:"あれらの"},{u:"U7",e:"buy",j:"…を買う"},{u:"U7",e:"people",j:"人々"},{u:"U7",e:"Welcome to ....",j:"…へようこそ"},{u:"U7",e:"also",j:"そのうえ"},{u:"U7",e:"are",j:"[進行形]"},{u:"U7",e:"take",j:"撮る"},{u:"U7",e:"welcome",j:"ようこそ"},{u:"U7",e:"around",j:"…のまわりを回って"},{u:"U7",e:"home",j:"故郷"},{u:"U7",e:"mom",j:"お母さん"},{u:"U7",e:"dad",j:"お父さん"},{u:"U7",e:"travel",j:"旅行する"},{u:"U7",e:"angry",j:"怒った"},{u:"U7",e:"palace",j:"宮殿"},{u:"U7",e:"exciting",j:"興奮させるような"},{u:"U7",e:"late",j:"遅い"},{u:"U7",e:"sorry",j:"すまなく思って"},{u:"U7",e:"funny",j:"おかしな"},{u:"U7",e:"OK",j:"よろしい"},{u:"U7",e:"I'm sorry.",j:"ごめんなさい"},{u:"U7",e:"we're",j:"we are"},{u:"U7",e:"big",j:"大きい"},{u:"U7",e:"excuse",j:"言い訳"},{u:"U7",e:"for",j:"…のために"},{u:"U7",e:"how",j:"なんと"},{u:"U7",e:"is",j:"[進行形]"},{u:"U7",e:"too",j:"あまりに"},{u:"U7",e:"well",j:"さて"},{u:"U7",e:"what",j:"なんと"},
 // RLE3
@@ -755,7 +834,7 @@ window.onload = function() {
     window.onkeydown = function(e) {
         if(e.key === " ") e.preventDefault(); // Stop scrolling
         if(Battle.state==="QUIZ" && Battle.type==='magic' && e.key==='Enter') document.getElementById('btn-submit').click();
-        if(Battle.state==="DEFENSE" && e.key.length===1) Battle.checkDef(e.key);
+        if(Battle.state==="DEFENSE") Battle.checkDef(e.key);
     };
 };
 </script>
