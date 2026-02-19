@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Quest: Grade 1 Textbook Complete (Tablet Ready)</title>
+<title>Word Quest: Grade 1 Textbook Complete (Tablet & Bonus)</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
     :root { --bg: #1a1a15; --panel: rgba(40,30,20,0.95); --acc: #ffaa00; --hp: #00ffaa; --dmg: #ff4444; --font: 'DotGothic16', sans-serif; }
-    * { box-sizing: border-box; user-select: none; touch-action: manipulation; } /* タブレットでの誤操作防止 */
+    * { box-sizing: border-box; user-select: none; touch-action: manipulation; }
     body { margin: 0; background: var(--bg); color: #fff; font-family: var(--font); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     #app { width: 100%; max-width: 900px; height: 100%; max-height: 700px; position: relative; background: #100a05; border: 2px solid #642; border-radius: 12px; overflow: hidden; box-shadow: 0 0 50px #000; }
     
@@ -122,11 +122,20 @@ const Debug = {
 </head>
 <body>
 
+<div id="error-box"></div>
+<script>
+    window.onerror = function(msg, url, line) {
+        document.getElementById('error-box').style.display = 'block';
+        document.getElementById('error-box').innerHTML += "⚠️ ERROR: " + msg + "<br>Line: " + line + "<br><br>";
+    };
+</script>
+
 <div id="app">
     <div id="screen-title" class="screen active center">
         <h1 onclick="Debug.trigger()">WORD QUEST<br><span style="font-size:0.6em;color:#fff;">GRADE 1</span></h1>
-        <p style="color:#aaa;">Tablet Edition (v22)</p>
+        <p style="color:#aaa;">Textbook Edition (v24 - No Dmg Bonus)</p>
         <button id="btn-start" class="btn start-btn">START</button>
+        <p style="font-size:12px; color:#555; margin-top:50px; opacity:0;">(Debug Hidden)</p>
     </div>
 
     <div id="screen-map" class="screen">
@@ -220,7 +229,7 @@ const Debug = {
         <h1 style="color:#0f0;">VICTORY!</h1>
         <div style="font-size:80px;margin:20px;">🏆</div>
         <div>Exp +<span id="res-exp"></span> / Gold +<span id="res-gold"></span></div>
-        <div id="levelup-msg" style="color:var(--acc);margin-top:10px;white-space:pre;"></div>
+        <div id="levelup-msg" style="color:var(--acc);margin-top:10px;white-space:pre; font-size:14px;"></div>
         <button id="btn-next" class="btn start-btn">NEXT</button>
     </div>
     
@@ -285,7 +294,7 @@ const TITLE_DB = [
     {id:99, name:"Cheater", desc:"Debug Mode", cond:function(h){return h.unlockedTitles.includes(99)}}
 ];
 
-// --- 4. METHODS ---
+// --- METHODS ---
 function setText(id, text) {
     const el = document.getElementById(id);
     if(el) el.innerText = text;
@@ -409,8 +418,8 @@ Game.buyItem = function(k, c) {
 
 // --- BATTLE ---
 Battle.state = "CMD"; Battle.words = []; Battle.cur = null; 
-Battle.enemy = {hp:600, max:600}; Battle.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false};
-Battle.defWord = ""; Battle.defIdx = 0; Battle.lock = false; Battle.defTimer = 0; Battle.defMax = 300; 
+Battle.enemy = {hp:600, max:600}; Battle.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false, wisdom:false, wealth:false};
+Battle.defWord = ""; Battle.defIdx = 0; Battle.lock = false; Battle.defTimer = 0; Battle.defMaxTimer = 300; 
 Battle.type = "attack"; Battle.curAnswer = ""; Battle.defMeaning = ""; Battle.currentUnit = ""; Battle.takenDamage = false;
 Battle.lastWord = null;
 
@@ -429,7 +438,7 @@ Battle.init = function(u) {
     this.enemy.hp = this.enemy.max;
     this.enemy.atk = baseAtk;
     
-    this.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false};
+    this.buffs = {atk:false, crit:false, block:false, bomb:false, drain:false, wisdom:false, wealth:false};
     Player.hp = Player.maxHp;
     
     const s=document.getElementById('enemy-sprite'); 
@@ -449,6 +458,8 @@ Battle.update = function() {
     if(this.buffs.block) h+="<span class='buff-icon'>🛡️</span>";
     if(this.buffs.bomb) h+="<span class='buff-icon'>💣</span>";
     if(this.buffs.drain) h+="<span class='buff-icon'>🦇</span>";
+    if(this.buffs.wisdom) h+="<span class='buff-icon'>📜</span>";
+    if(this.buffs.wealth) h+="<span class='buff-icon'>💰</span>";
     document.getElementById('active-buffs').innerHTML = h;
 };
 
@@ -519,6 +530,8 @@ Battle.openItems = function() {
                 if(i.id=='crit_gem') this.buffs.crit=true;
                 if(i.id=='bomb') this.buffs.bomb=true;
                 if(i.id=='vampire') this.buffs.drain=true;
+                if(i.id=='wisdom') this.buffs.wisdom=true;
+                if(i.id=='wealth') this.buffs.wealth=true;
                 if(i.id=='elixir') Player.hp=Player.maxHp;
                 if(i.id=='hi_potion') Player.hp=Math.min(Player.maxHp, Player.hp+150);
                 this.update();
@@ -577,28 +590,35 @@ Battle.startDefense = function() {
         let pool = this.words.length > 0 ? this.words : DB;
         let r = pool[Math.floor(Math.random()*pool.length)];
         this.defWord = r.e; this.defMeaning = r.j;
-        this.defIdx=0; this.defTimer=300;
+        this.defIdx=0; 
+        
+        // --- タイマー時間の調整 (1秒 ≒ 60フレーム) ---
+        let seconds = 8; // 基本8秒
+        if(this.defWord.length >= 12) {
+            seconds = 15; // 12文字以上は15秒
+        } else if(this.defWord.length >= 8) {
+            seconds = 12; // 8〜11文字は12秒
+        }
+        this.defTimer = seconds * 60;
+        this.defMaxTimer = this.defTimer; // ゲージ計算用
         
         UI.setText('def-meaning', this.defMeaning);
         
-        // --- タブレット用タップパネルの生成 ---
         const keysContainer = document.getElementById('def-keys');
         keysContainer.innerHTML = "";
         let chars = this.defWord.split('').map(c => c.toLowerCase());
         
-        // シャッフル
         for(let i = chars.length - 1; i > 0; i--){
             const j = Math.floor(Math.random() * (i + 1));
             [chars[i], chars[j]] = [chars[j], chars[i]];
         }
         
         chars.forEach((c) => {
-            if(c === ' ') return; // 空白はボタンにしない
+            if(c === ' ' || c === '-' || c === "'" || c === "?" || c === "." || c === ",") return; 
             let btn = document.createElement('div');
             btn.className = 'def-key';
             btn.innerText = c;
             btn.dataset.char = c;
-            // タップ（クリック）されたら判定処理へ送る
             btn.onclick = () => Battle.checkDef(c, btn);
             keysContainer.appendChild(btn);
         });
@@ -610,7 +630,8 @@ Battle.startDefense = function() {
 Battle.defLoop = function() {
     if(this.state!=="DEFENSE") return;
     this.defTimer--;
-    document.getElementById('def-timer-fill').style.width = (this.defTimer/300*100)+"%";
+    // 最大値を使ってゲージを減らす
+    document.getElementById('def-timer-fill').style.width = (this.defTimer / this.defMaxTimer * 100) + "%";
     if(this.defTimer<=0) this.endDef(false);
     else requestAnimationFrame(()=>this.defLoop());
 };
@@ -620,7 +641,7 @@ Battle.renderDef = function() {
     for(let i=0; i<this.defWord.length; i++) {
         let c = this.defWord[i];
         if(c === ' ') {
-            h += `<span style="margin: 0 10px;"> </span>`; // 空白を視覚的にあける
+            h += `<span style="margin: 0 10px;"> </span>`;
         } else {
             h += `<span style="color:${i<this.defIdx?'#0f0':'#fff'}">${c}</span>`;
         }
@@ -632,10 +653,8 @@ Battle.checkDef = function(key, btnElem = null) {
     if(this.lock || document.getElementById('defense-panel').classList.contains('hidden')) return;
     if(key.length !== 1) return;
     
-    // 現在打つべき文字を取得
     let targetChar = this.defWord[this.defIdx].toLowerCase();
 
-    // 空白やハイフンなど記号をスキップする処理（必要に応じて）
     while(targetChar === ' ' || targetChar === '-' || targetChar === "'" || targetChar === "?" || targetChar === "." || targetChar === ",") {
         this.defIdx++;
         if(this.defIdx >= this.defWord.length) {
@@ -649,7 +668,6 @@ Battle.checkDef = function(key, btnElem = null) {
     if(key.toLowerCase() === targetChar){
         this.defIdx++;
         
-        // タップしたボタン（または該当する文字ボタン）を消す
         if(btnElem) {
             btnElem.classList.add('used');
         } else {
@@ -664,7 +682,6 @@ Battle.checkDef = function(key, btnElem = null) {
 
         this.renderDef();
         
-        // 記号等で終わる場合のスキップ処理
         while(this.defIdx < this.defWord.length) {
              let nextChar = this.defWord[this.defIdx];
              if(nextChar === ' ' || nextChar === '-' || nextChar === "'" || nextChar === "?" || nextChar === "." || nextChar === ",") {
@@ -677,7 +694,6 @@ Battle.checkDef = function(key, btnElem = null) {
 
         if(this.defIdx >= this.defWord.length) this.endDef(true);
     } else {
-        // ミスしたときは画面を揺らす
         let panel = document.getElementById('defense-panel');
         panel.classList.add('shake');
         setTimeout(()=>panel.classList.remove('shake'), 300);
@@ -719,38 +735,50 @@ Battle.win = function() {
     let baseRew = 50 * (1 + uIdx * 0.15); 
     let finalRew = Math.floor(baseRew * (1 + Player.lv * 0.05));
 
-    Player.gold += finalRew; 
-    Player.exp += finalRew; 
-    Player.stats.totalGold += finalRew;
+    let bonusMsg = "";
     
+    // --- NO DAMAGE BONUS ---
+    if(!this.takenDamage) {
+        finalRew = Math.floor(finalRew * 1.5); // 1.5倍ボーナス
+        bonusMsg += "✨ Perfect Clear! (No Damage Bonus x1.5) ✨\n";
+        
+        Player.stats.noDamageCount++;
+        if(!Player.stats.unitPerfect) Player.stats.unitPerfect = {};
+        Player.stats.unitPerfect[this.currentUnit] = true;
+    }
+
+    // ITEM MULTIPLIERS
+    if(this.buffs.wisdom) finalRew = Math.floor(finalRew * 2);
+    if(this.buffs.wealth) finalRew = Math.floor(finalRew * 2);
+
+    Player.gold += (this.buffs.wealth ? finalRew : finalRew); 
+    Player.exp += (this.buffs.wisdom ? finalRew : finalRew); 
+    Player.stats.totalGold += (this.buffs.wealth ? finalRew : finalRew);
+    
+    let levelUp = false;
     if(Player.exp >= Player.nextExp) { 
         Player.lv++; 
         Player.exp -= Player.nextExp; 
         Player.nextExp = Math.floor(Player.nextExp * 1.2); 
         Player.maxHp += 10; 
         Player.hp = Player.maxHp; 
+        levelUp = true;
     }
     
-    if(!this.takenDamage) {
-        Player.stats.noDamageCount++;
-        if(!Player.stats.unitPerfect) Player.stats.unitPerfect = {};
-        Player.stats.unitPerfect[this.currentUnit] = true;
-    }
     Game.checkTitles();
 
-    UI.setText('res-gold', finalRew);
-    UI.setText('res-exp', finalRew);
+    UI.setText('res-gold', this.buffs.wealth ? finalRew : finalRew);
+    UI.setText('res-exp', this.buffs.wisdom ? finalRew : finalRew);
     
-    let msg = "";
-    if(!this.takenDamage) msg += "✨ Perfect Clear! (No Damage) ✨\n";
-    UI.setText('levelup-msg', msg);
+    if(levelUp) bonusMsg += "🎉 LEVEL UP! 🎉\n";
+    UI.setText('levelup-msg', bonusMsg);
 
     UI.show('screen-result');
     document.getElementById('enemy-sprite').classList.remove('enemy-death');
     UI.confetti();
 };
 
-// --- 5. DATA (FULL GRADE 1 SET) ---
+// --- DATA ---
 const DB = [
 // U1-1
 {u:"U1",e:"call",j:"呼ぶ"},{u:"U1",e:"South Africa",j:"南アフリカ共和国"},{u:"U1",e:"love",j:"愛する"},{u:"U1",e:"everyone",j:"みんな"},{u:"U1",e:"me",j:"私を"},{u:"U1",e:"from",j:"…から"},{u:"U1",e:"Japanese",j:"日本語"},{u:"U1",e:"sweet",j:"甘い菓子"},{u:"U1",e:"and",j:"…と～"},{u:"U1",e:"too",j:"～もまた"},{u:"U1",e:"join",j:"参加する"},{u:"U1",e:"the",j:"その"},{u:"U1",e:"club",j:"クラブ"},{u:"U1",e:"Call me",j:"私を…と呼んで"},{u:"U1",e:"want to",j:"…したい"},{u:"U1",e:"number",j:"数"},{u:"U1",e:"one",j:"1"},{u:"U1",e:"two",j:"2"},{u:"U1",e:"three",j:"3"},{u:"U1",e:"four",j:"4"},{u:"U1",e:"five",j:"5"},{u:"U1",e:"six",j:"6"},{u:"U1",e:"seven",j:"7"},{u:"U1",e:"eight",j:"8"},{u:"U1",e:"nine",j:"9"},{u:"U1",e:"eleven",j:"11"},{u:"U1",e:"twelve",j:"12"},{u:"U1",e:"thirteen",j:"13"},{u:"U1",e:"fourteen",j:"14"},{u:"U1",e:"fifteen",j:"15"},{u:"U1",e:"sixteen",j:"16"},{u:"U1",e:"seventeen",j:"17"},{u:"U1",e:"eighteen",j:"18"},{u:"U1",e:"nineteen",j:"19"},{u:"U1",e:"twenty",j:"20"},{u:"U1",e:"thirty",j:"30"},{u:"U1",e:"forty",j:"40"},{u:"U1",e:"fifty",j:"50"},{u:"U1",e:"sixty",j:"60"},{u:"U1",e:"seventy",j:"70"},{u:"U1",e:"eighty",j:"80"},{u:"U1",e:"ninety",j:"90"},{u:"U1",e:"hundred",j:"100"},{u:"U1",e:"zero",j:"0"},{u:"U1",e:"fan",j:"ファン"},{u:"U1",e:"often",j:"しばしば"},{u:"U1",e:"with",j:"一緒に"},{u:"U1",e:"but",j:"しかし"},{u:"U1",e:"rugby",j:"ラグビー"},{u:"U1",e:"watch",j:"見る"},{u:"U1",e:"friend",j:"友達"},{u:"U1",e:"great",j:"すばらしい"},{u:"U1",e:"no",j:"いいえ"},{u:"U1",e:"not",j:"…でない"},{u:"U1",e:"oh",j:"まあ"},{u:"U1",e:"don't",j:"do not"},{u:"U1",e:"do",j:"する"},{u:"U1",e:"draw",j:"描く"},{u:"U1",e:"an",j:"1つの"},{u:"U1",e:"anime",j:"アニメ"},{u:"U1",e:"so",j:"だから"},{u:"U1",e:"about",j:"について"},{u:"U1",e:"lesson",j:"授業"},{u:"U1",e:"comic",j:"マンガ"},{u:"U1",e:"wow",j:"うわあ"},{u:"U1",e:"are",j:"…です"},{u:"U1",e:"in",j:"…に"},{u:"U1",e:"art",j:"美術"},{u:"U1",e:"how",j:"どんな"},{u:"U1",e:"school",j:"学校"},{u:"U1",e:"now",j:"今"},{u:"U1",e:"take",j:"とる"},{u:"U1",e:"swimming",j:"水泳"},{u:"U1",e:"How about you?",j:"あなたはどうですか"},
@@ -779,7 +807,7 @@ const DB = [
 // LR2
 {u:"LR2",e:"once",j:"かつて"},{u:"LR2",e:"poor",j:"貧しい"},{u:"LR2",e:"rich",j:"金持ちの"},{u:"LR2",e:"sell",j:"売る"},{u:"LR2",e:"candy",j:"キャンディー"},{u:"LR2",e:"door-to-door",j:"戸別に"},{u:"LR2",e:"earn",j:"かせぐ"},{u:"LR2",e:"few",j:"少しの"},{u:"LR2",e:"coin",j:"硬貨"},{u:"LR2",e:"knock",j:"ノックする"},{u:"LR2",e:"well-off",j:"裕福な"},{u:"LR2",e:"herself",j:"彼女自身"},{u:"LR2",e:"a glass of",j:"コップ1杯の"},{u:"LR2",e:"a few",j:"少数の"},{u:"LR2",e:"be about to",j:"今にも…しようとしている"},{u:"LR2",e:"about",j:"今にも"},{u:"LR2",e:"pocket",j:"ポケット"},{u:"LR2",e:"reply",j:"答える"},{u:"LR2",e:"pay",j:"払う"},{u:"LR2",e:"kindness",j:"親切"},{u:"LR2",e:"away",j:"はなれて"},{u:"LR2",e:"wonder",j:"思いをめぐらす"},{u:"LR2",e:"hope",j:"望む"},{u:"LR2",e:"with a smile",j:"にっこり笑って"},{u:"LR2",e:"do well",j:"順調にやる"},{u:"LR2",e:"before",j:"…する前に"},{u:"LR2",e:"better",j:"もっとよい"},{u:"LR2",e:"smile",j:"ほほえみ"},{u:"LR2",e:"ill",j:"病気で"},{u:"LR2",e:"sent",j:"sendの過去形"},{u:"LR2",e:"send",j:"送る"},{u:"LR2",e:"operation",j:"手術"},{u:"LR2",e:"woke",j:"wakeの過去形"},{u:"LR2",e:"alive",j:"生きて"},{u:"LR2",e:"envelope",j:"封筒"},{u:"LR2",e:"bill",j:"請求書"},{u:"LR2",e:"afraid",j:"こわがって"},{u:"LR2",e:"inside",j:"内側に"},{u:"LR2",e:"paid",j:"支払い済みの"},{u:"LR2",e:"go by",j:"過ぎる"},{u:"LR2",e:"in front of",j:"…の前で"},{u:"LR2",e:"right away",j:"すぐに"},{u:"LR2",e:"be afraid to",j:"…するのがこわい"},{u:"LR2",e:"in full",j:"全部"},{u:"LR2",e:"here's",j:"here is"},{u:"LR2",e:"full",j:"完全な"},{u:"LR2",e:"right",j:"ちょうど"},{u:"LR2",e:"say",j:"書いてある"},
 // LR3
-{u:"LR3",e:"planet",j:"惑星"},{u:"LR3",e:"photograph",j:"写真"},{u:"LR3",e:"university",j:"大学"},{u:"LR3",e:"attracted",j:"ひきつけられる"},{u:"LR3",e:"middle",j:"中央"},{u:"LR3",e:"wilderness",j:"荒野"},{u:"LR3",e:"mayor",j:"市長"},{u:"LR3",e:"invite",j:"招待する"},{u:"LR3",e:"dream",j:"夢"},{u:"LR3",e:"true",j:"本当の"},{u:"LR3",e:"in the middle of",j:"…の真ん中に"},{u:"LR3",e:"for himself",j:"自分で"},{u:"LR3",e:"come true",j:"実現する"},{u:"LR3",e:"change",j:"変える"},{u:"LR3",e:"life",j:"一生"},{u:"LR3",e:"write",j:"手紙を書く"},{u:"LR3",e:"among",j:"…の中で"},{u:"LR3",e:"convenience",j:"便利なこと"},{u:"LR3",e:"hunt",j:"狩る"},{u:"LR3",e:"gather",j:"集める"},{u:"LR3",e:"berry",j:"ベリー"},{u:"LR3",e:"tradition",j:"伝統"},{u:"LR3",e:"harmoniously",j:"調和して"},{u:"LR3",e:"understood",j:"understandの過去形"},{u:"LR3",e:"living",j:"生きている"},{u:"LR3",e:"share",j:"共有する"},{u:"LR3",e:"became",j:"becomeの過去形"},{u:"LR3",e:"part",j:"部分"},{u:"LR3",e:"return",j:"帰る"},{u:"LR3",e:"photographer",j:"写真家"},{u:"LR3",e:"camp",j:"キャンプをする"},{u:"LR3",e:"severe",j:"厳しい"},{u:"LR3",e:"wild",j:"野生の"},{u:"LR3",e:"lonely",j:"ひとりぼっちの"},{u:"LR3",e:"freedom",j:"自由"},{u:"LR3",e:"playful",j:"楽しげな"},{u:"LR3",e:"scene",j:"景色"},{u:"LR3",e:"suddenly",j:"突然"},{u:"LR3",e:"kill",j:"殺す"},{u:"LR3",e:"alone",j:"ひとりで"},{u:"LR3",e:"end",j:"終わる"},{u:"LR3",e:"free",j:"自由な"},{u:"LR3",e:"wonder",j:"驚き"},{u:"LR3",e:"glacier",j:"氷河"},{u:"LR3",e:"disappear",j:"姿を消す"},{u:"LR3",e:"global warming",j:"地球温暖化"},{u:"LR3",e:"enough",j:"十分な"},{u:"LR3",e:"habitat",j:"生息地"},{u:"LR3",e:"grow",j:"…になる"},{u:"LR3",e:"lose",j:"失う"},{u:"LR3",e:"land",j:"土地"},{u:"LR3",e:"island",j:"島"},{u:"LR3",e:"slowly",j:"ゆっくりと"},{u:"LR3",e:"twice",j:"2倍"},{u:"LR3",e:"rest",j:"残り"},{u:"LR3",e:"Earth",j:"地球"},{u:"LR3",e:"remind",j:"思い出させる"},{u:"LR3",e:"past",j:"過去"},{u:"LR3",e:"pass",j:"手渡す"},{u:"LR3",e:"beauty",j:"美しさ"},{u:"LR3",e:"turn into",j:"…になる"},{u:"LR3",e:"twice as ... as",j:"～より2倍…"},{u:"LR3",e:"remind ... of",j:"…に～を思い出させる"},{u:"LR3",e:"pass on ... to",j:"…を～に伝える"},{u:"LR3",e:"into",j:"…に(なる)"},{u:"LR3",e:"way",j:"方法"},
+{u:"LR3",e:"planet",j:"惑星"},{u:"LR3",e:"photograph",j:"写真"},{u:"LR3",e:"university",j:"大学"},{u:"LR3",e:"attracted",j:"ひきつけられる"},{u:"LR3",e:"middle",j:"中央"},{u:"LR3",e:"wilderness",j:"荒野"},{u:"LR3",e:"mayor",j:"市長"},{u:"LR3",e:"invite",j:"招待する"},{u:"LR3",e:"dream",j:"夢"},{u:"LR3",e:"true",j:"本当の"},{u:"LR3",e:"in the middle of",j:"…の真ん中に"},{u:"LR3",e:"for himself",j:"自分で"},{u:"LR3",e:"come true",j:"実現する"},{u:"LR3",e:"change",j:"変える"},{u:"LR3",e:"life",j:"一生"},{u:"LR3",e:"write",j:"手紙を書く"},{u:"LR3",e:"among",j:"…の中で"},{u:"LR3",e:"convenience",j:"便利なこと"},{u:"LR3",e:"hunt",j:"狩る"},{u:"LR3",e:"gather",j:"集める"},{u:"LR3",e:"berry",j:"ベリー"},{u:"LR3",e:"tradition",j:"伝統"},{u:"LR3",e:"harmoniously",j:"調和して"},{u:"LR3",e:"understood",j:"understandの過去形"},{u:"LR3",e:"living",j:"生きている"},{u:"LR3",e:"share",j:"共有する"},{u:"LR3",e:"became",j:"becomeの過去形"},{u:"LR3",e:"part",j:"部分"},{u:"LR3",e:"return",j:"帰る"},{u:"LR3",e:"photographer",j:"写真家"},{u:"LR3",e:"camp",j:"キャンプをする"},{u:"LR3",e:"severe",j:"厳しい"},{u:"LR3",e:"wild",j:"野生の"},{u:"LR3",e:"lonely",j:"ひとりぼっちの"},{u:"LR3",e:"freedom",j:"自由"},{u:"LR3",e:"playful",j:"楽しげな"},{u:"LR3",e:"scene",j:"景色"},{u:"LR3",e:"suddenly",j:"突然"},{u:"LR3",e:"kill",j:"殺す"},{u:"LR3",e:"alone",j:"ひとりで"},{u:"LR3",e:"end",j:"終わり"},{u:"LR3",e:"free",j:"自由な"},{u:"LR3",e:"wonder",j:"驚き"},{u:"LR3",e:"glacier",j:"氷河"},{u:"LR3",e:"disappear",j:"姿を消す"},{u:"LR3",e:"global warming",j:"地球温暖化"},{u:"LR3",e:"enough",j:"十分な"},{u:"LR3",e:"habitat",j:"生息地"},{u:"LR3",e:"grow",j:"…になる"},{u:"LR3",e:"lose",j:"失う"},{u:"LR3",e:"land",j:"土地"},{u:"LR3",e:"island",j:"島"},{u:"LR3",e:"slowly",j:"ゆっくりと"},{u:"LR3",e:"twice",j:"2倍"},{u:"LR3",e:"rest",j:"残り"},{u:"LR3",e:"Earth",j:"地球"},{u:"LR3",e:"remind",j:"思い出させる"},{u:"LR3",e:"past",j:"過去"},{u:"LR3",e:"pass",j:"手渡す"},{u:"LR3",e:"beauty",j:"美しさ"},{u:"LR3",e:"turn into",j:"…になる"},{u:"LR3",e:"twice as ... as",j:"～より2倍…"},{u:"LR3",e:"remind ... of",j:"…に～を思い出させる"},{u:"LR3",e:"pass on ... to",j:"…を～に伝える"},{u:"LR3",e:"into",j:"…に(なる)"},{u:"LR3",e:"way",j:"方法"},
 // Unit 7
 {u:"U7",e:"of",j:"…を"},{u:"U7",e:"tomorrow",j:"明日"},{u:"U7",e:"plan",j:"計画"},{u:"U7",e:"free",j:"ひまな"},{u:"U7",e:"mean",j:"…を意味する"},{u:"U7",e:"forward",j:"楽しみに待つ"},{u:"U7",e:"busy",j:"忙しい"},{u:"U7",e:"talk",j:"話す"},{u:"U7",e:"up",j:"どうしたのですか"},{u:"U7",e:"What's up?",j:"どうしたのですか"},{u:"U7",e:"sound like",j:"…のように聞こえる"},{u:"U7",e:"look forward to",j:"…を楽しみに待つ"},{u:"U7",e:"am",j:"[進行形]"},{u:"U7",e:"hello",j:"もしもし"},{u:"U7",e:"at",j:"…に"},{u:"U7",e:"online",j:"オンラインの"},{u:"U7",e:"market",j:"市場"},{u:"U7",e:"souvenir",j:"記念品"},{u:"U7",e:"place",j:"場所"},{u:"U7",e:"appear",j:"現れる"},{u:"U7",e:"those",j:"あれらの"},{u:"U7",e:"buy",j:"…を買う"},{u:"U7",e:"people",j:"人々"},{u:"U7",e:"Welcome to ....",j:"…へようこそ"},{u:"U7",e:"also",j:"そのうえ"},{u:"U7",e:"are",j:"[進行形]"},{u:"U7",e:"take",j:"撮る"},{u:"U7",e:"welcome",j:"ようこそ"},{u:"U7",e:"around",j:"…のまわりを回って"},{u:"U7",e:"home",j:"故郷"},{u:"U7",e:"mom",j:"お母さん"},{u:"U7",e:"dad",j:"お父さん"},{u:"U7",e:"travel",j:"旅行する"},{u:"U7",e:"angry",j:"怒った"},{u:"U7",e:"palace",j:"宮殿"},{u:"U7",e:"exciting",j:"興奮させるような"},{u:"U7",e:"late",j:"遅い"},{u:"U7",e:"sorry",j:"すまなく思って"},{u:"U7",e:"funny",j:"おかしな"},{u:"U7",e:"OK",j:"よろしい"},{u:"U7",e:"I'm sorry.",j:"ごめんなさい"},{u:"U7",e:"we're",j:"we are"},{u:"U7",e:"big",j:"大きい"},{u:"U7",e:"excuse",j:"言い訳"},{u:"U7",e:"for",j:"…のために"},{u:"U7",e:"how",j:"なんと"},{u:"U7",e:"is",j:"[進行形]"},{u:"U7",e:"too",j:"あまりに"},{u:"U7",e:"well",j:"さて"},{u:"U7",e:"what",j:"なんと"},
 // RLE3
